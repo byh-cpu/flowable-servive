@@ -5,6 +5,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/ruoyi-vue-pro-master-jdk17/pom.xml" />
+        <option value="$PROJECT_DIR$/zhgd-workflow-service/zhgd-server/pom.xml" />
+        <option value="$PROJECT_DIR$/zhgd-workflow-service/pom.xml" />
       </list>
     </option>
   </component>

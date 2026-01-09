@@ -3,59 +3,63 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for yudao" enabled="true">
+      <profile name="Annotation profile for zhgd-workflow-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$PROJECT_DIR$/../../../../Maven/apache-maven-3.9.11/repository/org/springframework/boot/spring-boot-configuration-processor/3.5.5/spring-boot-configuration-processor-3.5.5.jar" />
-          <entry name="$PROJECT_DIR$/../../../../Maven/apache-maven-3.9.11/repository/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-          <entry name="$PROJECT_DIR$/../../../../Maven/apache-maven-3.9.11/repository/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
-          <entry name="$PROJECT_DIR$/../../../../Maven/apache-maven-3.9.11/repository/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/3.5.5/spring-boot-configuration-processor-3.5.5.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
         </processorPath>
-        <module name="yudao-spring-boot-starter-job" />
-        <module name="yudao-module-infra" />
-        <module name="yudao-server" />
-        <module name="yudao-spring-boot-starter-test" />
-        <module name="yudao-spring-boot-starter-biz-data-permission" />
-        <module name="yudao-spring-boot-starter-security" />
-        <module name="yudao-spring-boot-starter-redis" />
-        <module name="yudao-spring-boot-starter-mybatis" />
-        <module name="yudao-spring-boot-starter-protection" />
-        <module name="yudao-spring-boot-starter-web" />
-        <module name="yudao-module-system" />
-        <module name="yudao-spring-boot-starter-biz-ip" />
-        <module name="yudao-spring-boot-starter-biz-tenant" />
-        <module name="yudao-spring-boot-starter-monitor" />
-        <module name="yudao-spring-boot-starter-websocket" />
-        <module name="yudao-spring-boot-starter-mq" />
-        <module name="yudao-common" />
-        <module name="yudao-spring-boot-starter-excel" />
-        <module name="yudao-module-bpm" />
+        <module name="zhgd-spring-boot-starter-monitor" />
+        <module name="zhgd-spring-boot-starter-test" />
+        <module name="zhgd-spring-boot-starter-protection" />
+        <module name="zhgd-common" />
+        <module name="zhgd-module-system" />
+        <module name="zhgd-spring-boot-starter-job" />
+        <module name="zhgd-spring-boot-starter-websocket" />
+        <module name="zhgd-spring-boot-starter-biz-data-permission" />
+        <module name="zhgd-module-bpm" />
+        <module name="zhgd-server" />
+        <module name="zhgd-spring-boot-starter-biz-ip" />
+        <module name="zhgd-spring-boot-starter-redis" />
+        <module name="zhgd-spring-boot-starter-security" />
+        <module name="zhgd-spring-boot-starter-biz-tenant" />
+        <module name="zhgd-spring-boot-starter-web" />
+        <module name="zhgd-module-infra" />
+        <module name="zhgd-spring-boot-starter-mq" />
+        <module name="zhgd-spring-boot-starter-mybatis" />
+        <module name="zhgd-spring-boot-starter-excel" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="yudao-spring-boot-starter-websocket" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="yudao-common" options="-parameters" />
-      <module name="yudao-module-bpm" options="-parameters" />
-      <module name="yudao-module-infra" options="-parameters" />
-      <module name="yudao-module-system" options="-parameters" />
-      <module name="yudao-server" options="-parameters" />
-      <module name="yudao-spring-boot-starter-biz-data-permission" options="-parameters" />
-      <module name="yudao-spring-boot-starter-biz-ip" options="-parameters" />
-      <module name="yudao-spring-boot-starter-biz-tenant" options="-parameters" />
-      <module name="yudao-spring-boot-starter-excel" options="-parameters" />
-      <module name="yudao-spring-boot-starter-job" options="-parameters" />
-      <module name="yudao-spring-boot-starter-monitor" options="-parameters" />
-      <module name="yudao-spring-boot-starter-mq" options="-parameters" />
-      <module name="yudao-spring-boot-starter-mybatis" options="-parameters" />
-      <module name="yudao-spring-boot-starter-protection" options="-parameters" />
-      <module name="yudao-spring-boot-starter-redis" options="-parameters" />
-      <module name="yudao-spring-boot-starter-security" options="-parameters" />
-      <module name="yudao-spring-boot-starter-test" options="-parameters" />
-      <module name="yudao-spring-boot-starter-web" options="-parameters" />
       <module name="yudao-spring-boot-starter-websocket" options="-parameters" />
+      <module name="zhgd-common" options="-parameters" />
+      <module name="zhgd-module-bpm" options="-parameters" />
+      <module name="zhgd-module-infra" options="-parameters" />
+      <module name="zhgd-module-system" options="-parameters" />
+      <module name="zhgd-server" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-biz-data-permission" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-biz-ip" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-biz-tenant" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-excel" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-job" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-monitor" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-mq" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-mybatis" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-protection" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-redis" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-security" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-test" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-web" options="-parameters" />
+      <module name="zhgd-spring-boot-starter-websocket" options="-parameters" />
     </option>
   </component>
 </project>

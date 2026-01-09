@@ -1,0 +1,2 @@
+cn.iocoder.zhgd.framework.redis.config.YudaoRedisAutoConfiguration
+cn.iocoder.zhgd.framework.redis.config.YudaoCacheAutoConfiguration
