@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  *
  * @author 芋道源码
  */
-@Service
+@Service("localMemberService")
 public class MemberServiceImpl implements MemberService {
 
     @Value("${zhgd.info.base-package}")

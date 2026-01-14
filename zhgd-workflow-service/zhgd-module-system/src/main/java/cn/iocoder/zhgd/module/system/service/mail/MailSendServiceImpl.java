@@ -40,7 +40,7 @@ public class MailSendServiceImpl implements MailSendService {
 
     @Resource
     private AdminUserService adminUserService;
-    @Resource
+    @Resource(name = "localMemberService")
     private MemberService memberService;
 
     @Resource

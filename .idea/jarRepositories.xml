@@ -4,12 +4,12 @@
     <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
-      <option name="url" value="https://repo.maven.apache.org/maven2" />
+      <option name="url" value="http://maven.aliyun.com/nexus/content/groups/public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
-      <option name="url" value="http://maven.aliyun.com/nexus/content/groups/public/" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="aliyunmaven" />
@@ -40,6 +40,16 @@
       <option name="id" value="huaweicloud" />
       <option name="name" value="huawei" />
       <option name="url" value="https://mirrors.huaweicloud.com/repository/maven/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="company-snapshots" />
+      <option name="name" value="Company Snapshots Repository" />
+      <option name="url" value="http://你的公司私服地址/repository/maven-snapshots/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="company-releases" />
+      <option name="name" value="Company Releases Repository" />
+      <option name="url" value="http://你的公司私服地址/repository/maven-releases/" />
     </remote-repository>
   </component>
 </project>

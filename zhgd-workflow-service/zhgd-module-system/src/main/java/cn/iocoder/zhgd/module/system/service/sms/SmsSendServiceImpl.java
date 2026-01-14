@@ -41,7 +41,7 @@ public class SmsSendServiceImpl implements SmsSendService {
 
     @Resource
     private AdminUserService adminUserService;
-    @Resource
+    @Resource(name = "localMemberService")
     private MemberService memberService;
     @Resource
     private SmsChannelService smsChannelService;

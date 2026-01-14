@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -29,7 +30,7 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import cn.pinming.v2.passport.api.service.MemberService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,15 @@ public class BpmTaskController {
     private AdminUserApi adminUserApi;
     @Resource
     private DeptApi deptApi;
+    @DubboReference
+    private MemberService memberService;
+
+    @GetMapping("say-hello")
+    public String test() {
+        String abs= String.valueOf(memberService.findMemberByMemberNo("1213"));
+        System.out.println(abs);
+        return null;
+    }
 
     @GetMapping("todo-page")
     @Operation(summary = "获取 Todo 待办任务分页")

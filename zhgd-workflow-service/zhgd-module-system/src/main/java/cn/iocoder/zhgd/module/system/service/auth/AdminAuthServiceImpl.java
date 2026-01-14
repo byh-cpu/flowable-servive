@@ -60,7 +60,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private OAuth2TokenService oauth2TokenService;
     @Resource
     private SocialUserService socialUserService;
-    @Resource
+    @Resource(name = "localMemberService")
     private MemberService memberService;
     @Resource
     private Validator validator;

@@ -1,6 +1,33 @@
 server:
   port: 48080
 
+
+nacos:
+  config:
+    server-addr: ${nacos_server_addr:172.16.9.88:18848}
+    namespace: ${nacos_namespace:bf644fca-1276-415a-89de-428331e96a46}
+    data-ids: ${nacos_data_ids:zhgd-workflow-service,workflow-common}
+    group: ${nacos_group:workflow}
+    max-retry: 10
+    type: properties
+    auto-refresh: false
+    bootstrap:
+      enable: true
+      log-enable: true
+    username: ${nacos_username:nacos}
+    password: ${nacos_password:sHL4RErzeB@kJMVnXPKfh9j}
+dubbo:
+  application:
+    id: gddnTunnelMonitor
+    name: gddnTunnelMonitor
+  protocol:
+    port: 20804
+  consumer:
+    group: pms_k8s_test05
+  provider:
+    group: pms_k8s_test05
+  registry:
+    address: zookeeper://172.16.8.125:2181?client=curator&timeout=60000
 --- #################### 数据库相关配置 ####################
 spring:
   autoconfigure:

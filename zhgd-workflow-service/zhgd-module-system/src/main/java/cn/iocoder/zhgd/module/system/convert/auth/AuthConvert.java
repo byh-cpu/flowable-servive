@@ -12,6 +12,7 @@ import cn.iocoder.zhgd.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.zhgd.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.zhgd.module.system.enums.permission.MenuTypeEnum;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.LoggerFactory;
 
