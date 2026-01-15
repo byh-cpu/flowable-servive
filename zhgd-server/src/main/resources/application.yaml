@@ -1,9 +1,21 @@
 spring:
   application:
     name: zhgd-workflow-server
-
   profiles:
     active: local
+
+  # 加载 Nacos 配置
+  config:
+    import:
+      - optional:nacos:zhgd-workflow-service?group=workflow&namespace=bf644fca-1276-415a-89de-428331e96a46
+      - optional:nacos:workflow-common?group=workflow&namespace=bf644fca-1276-415a-89de-428331e96a46
+
+  # 👇 cloud 必须和 config 同级，都在 spring 下！
+  cloud:
+    nacos:
+      server-addr: 172.16.9.88:18848
+      username: nacos
+      password: sHL4RErzeB@kJMVnXPKfh9j
 
   main:
     allow-circular-references: true # 允许循环依赖，因为项目是三层架构，无法避免这个情况。

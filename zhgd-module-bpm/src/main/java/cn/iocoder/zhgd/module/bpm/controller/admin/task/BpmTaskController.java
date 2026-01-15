@@ -33,6 +33,7 @@ import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -82,6 +83,13 @@ public class BpmTaskController {
 //        List<AuthorityRoleDto>  authorityRoleDtoList=authorityRoleService.organizeRoleList(organizeRoleQueryDto);
         System.out.println(abs);
         return employeeFrontDtos;
+    }
+    @Value("${spring.redis.host}")
+    private String redisHost;
+
+    @GetMapping("/debug/redis")
+    public String getRedisHost() {
+        return "Current Redis Host: " + redisHost;
     }
 
     @GetMapping("todo-page")
