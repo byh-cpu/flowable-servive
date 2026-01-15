@@ -5,6 +5,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -17,6 +18,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
                 RedissonAutoConfigurationV2.class,     // 新版 Redisson 自动配置（唯一需要排除的Redisson类）
                 RedisAutoConfiguration.class,          // Spring 核心 Redis 自动配置
                 RedisReactiveAutoConfiguration.class   // 响应式 Redis 自动配置（兜底）
+
         }
 )
 @EnableDubbo

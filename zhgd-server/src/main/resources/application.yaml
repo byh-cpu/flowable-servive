@@ -1,6 +1,7 @@
 # 保留你原有的 nacos.config.* 配置
 nacos:
   config:
+    enabled: false
     server-addr: ${nacos_server_addr:172.16.9.88:18848}
     namespace: ${nacos_namespace:bf644fca-1276-415a-89de-428331e96a46}
     data-ids: ${nacos_data_ids:zhgd-person-lw,rysmz-common}
