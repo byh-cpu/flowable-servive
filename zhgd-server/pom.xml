@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zhgd-server</artifactId>
+    <artifactId>zhgd-workflow-server</artifactId>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -150,7 +150,7 @@
 
     <build>
         <!-- 设置构建的 jar 包名 -->
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <!-- 打包 -->
             <plugin>

@@ -22,13 +22,13 @@
         <module name="zhgd-spring-boot-starter-websocket" />
         <module name="zhgd-spring-boot-starter-biz-data-permission" />
         <module name="zhgd-module-bpm" />
-        <module name="zhgd-server" />
         <module name="zhgd-spring-boot-starter-biz-ip" />
         <module name="zhgd-spring-boot-starter-redis" />
         <module name="zhgd-spring-boot-starter-security" />
         <module name="zhgd-spring-boot-starter-biz-tenant" />
         <module name="zhgd-spring-boot-starter-web" />
         <module name="zhgd-module-infra" />
+        <module name="zhgd-workflow-server" />
         <module name="zhgd-spring-boot-starter-mq" />
         <module name="zhgd-spring-boot-starter-mybatis" />
         <module name="zhgd-spring-boot-starter-excel" />
@@ -36,6 +36,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="yudao-spring-boot-starter-websocket" target="17" />
+      <module name="zhgd-server" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -60,6 +61,7 @@
       <module name="zhgd-spring-boot-starter-test" options="-parameters" />
       <module name="zhgd-spring-boot-starter-web" options="-parameters" />
       <module name="zhgd-spring-boot-starter-websocket" options="-parameters" />
+      <module name="zhgd-workflow-server" options="-parameters" />
     </option>
   </component>
 </project>

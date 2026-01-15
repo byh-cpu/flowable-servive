@@ -5,6 +5,7 @@ import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Schema(description = "管理后台 - 流程任务 Response VO")
 @Data
+@Accessors(chain = true)
 public class BpmTaskRespVO {
 
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

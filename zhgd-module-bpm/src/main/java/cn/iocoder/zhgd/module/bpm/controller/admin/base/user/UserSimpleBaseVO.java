@@ -2,9 +2,11 @@ package cn.iocoder.zhgd.module.bpm.controller.admin.base.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Schema(description = "用户精简信息 VO")
 @Data
+@Accessors(chain = true) // 开启链式调用
 public class UserSimpleBaseVO {
 
     @Schema(description = "用户编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

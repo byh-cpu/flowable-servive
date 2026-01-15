@@ -16,6 +16,12 @@ import cn.iocoder.zhgd.module.system.api.dept.DeptApi;
 import cn.iocoder.zhgd.module.system.api.dept.dto.DeptRespDTO;
 import cn.iocoder.zhgd.module.system.api.user.AdminUserApi;
 import cn.iocoder.zhgd.module.system.api.user.dto.AdminUserRespDTO;
+import cn.pinming.v2.authority.api.dto.AuthorityRoleDto;
+import cn.pinming.v2.authority.api.dto.OrganizeRoleQueryDto;
+import cn.pinming.v2.authority.api.service.AuthorityRoleService;
+
+import cn.pinming.zhuang.api.company.dto.EmployeeFrontDto;
+import cn.pinming.zhuang.api.company.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,12 +68,20 @@ public class BpmTaskController {
     private DeptApi deptApi;
     @DubboReference
     private MemberService memberService;
+//    @DubboReference
+//    private AuthorityRoleService authorityRoleService;
+//    @DubboReference
+//    private EmployeeService employeeService;
 
     @GetMapping("say-hello")
-    public String test() {
+    public List<EmployeeFrontDto> test() {
+        OrganizeRoleQueryDto organizeRoleQueryDto=new OrganizeRoleQueryDto();
+        organizeRoleQueryDto.setCompanyId(11609);
         String abs= String.valueOf(memberService.findMemberByMemberNo("1213"));
+        List<EmployeeFrontDto> employeeFrontDtos=null;
+//        List<AuthorityRoleDto>  authorityRoleDtoList=authorityRoleService.organizeRoleList(organizeRoleQueryDto);
         System.out.println(abs);
-        return null;
+        return employeeFrontDtos;
     }
 
     @GetMapping("todo-page")
