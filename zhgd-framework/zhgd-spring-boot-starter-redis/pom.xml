@@ -16,6 +16,36 @@
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
     <dependencies>
+        <!-- Jedis 核心依赖（解决 JedisPoolConfig 找不到的问题） -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>4.4.6</version> <!-- 适配 Spring Boot 3.5.8 的稳定版本 -->
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- 可选：连接池依赖（提升 Jedis 性能，建议添加） -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- Lettuce 客户端依赖（解决类缺失问题） -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.3.2.RELEASE</version> <!-- 版本和 Spring Boot 3.5.8 适配 -->
+        </dependency>
+        <!-- 可选：Lettuce 连接池依赖（提升性能） -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>cn.iocoder.boot</groupId>
             <artifactId>zhgd-common</artifactId>
