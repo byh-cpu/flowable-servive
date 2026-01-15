@@ -1,6 +1,6 @@
 spring:
   application:
-    name: zhgd-server
+    name: zhgd-workflow-server
 
   profiles:
     active: local
