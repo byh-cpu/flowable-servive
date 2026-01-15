@@ -223,7 +223,7 @@ debug: false
 # ========== 微信配置（公众号+小程序） ==========
 wx:
   mp:
-    app-id: wxf56b1542b9e85f8a
+    appid: wxf56b1542b9e85f8a
     secret: 496379dcef1ba869e9234de8d598cfd3
     config-storage:
       type: RedisTemplate

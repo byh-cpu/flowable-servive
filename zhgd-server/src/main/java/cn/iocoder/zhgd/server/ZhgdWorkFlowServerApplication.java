@@ -1,5 +1,6 @@
 package cn.iocoder.zhgd.server;
 
+import com.binarywang.spring.starter.wxjava.mp.config.WxMpServiceAutoConfiguration;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
@@ -17,8 +18,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
         exclude = {
                 RedissonAutoConfigurationV2.class,     // 新版 Redisson 自动配置（唯一需要排除的Redisson类）
                 RedisAutoConfiguration.class,          // Spring 核心 Redis 自动配置
-                RedisReactiveAutoConfiguration.class   // 响应式 Redis 自动配置（兜底）
-
+                RedisReactiveAutoConfiguration.class
         }
 )
 @EnableDubbo
