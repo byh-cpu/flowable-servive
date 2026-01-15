@@ -90,6 +90,11 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
         <!-- 三方云服务相关 -->
         <dependency>
             <groupId>me.zhyd.oauth</groupId>

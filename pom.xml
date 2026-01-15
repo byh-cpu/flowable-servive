@@ -20,7 +20,6 @@
     <description>芋道项目基础脚手架</description>
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
-    <!-- 合并所有 properties，删除重复、补充缺失变量 -->
     <properties>
         <revision>0.0.1-SNAPSHOT</revision>
         <!-- Maven 相关 -->
@@ -29,24 +28,23 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <!-- 明确指定 flatten 版本（兼容 Maven 3.6.1） -->
         <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
-        <!-- 第三方依赖版本 -->
+        <!-- 第三方依赖版本：核心修改 ↓ 降级 MapStruct 到兼容版本 -->
         <lombok.version>1.18.42</lombok.version>
         <spring.boot.version>3.5.5</spring.boot.version>
-        <mapstruct.version>1.6.3</mapstruct.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version> <!-- 适配 Java 17 + Lombok 1.18.42 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Dubbo 版本（补充缺失的变量，统一用 2.7.21） -->
+        <!-- Dubbo 版本 -->
         <dubbo.version>3.2.7</dubbo.version>
         <nacos-client.version>2.2.0</nacos-client.version>
-        <!-- 业务依赖版本（删除重复定义） -->
+        <!-- 业务依赖版本 -->
         <data-exchange-dubbo-api.version>2.0.33-SNAPSHOT</data-exchange-dubbo-api.version>
         <machine.management.dubbo.api.version>2.0-SNAPSHOT</machine.management.dubbo.api.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- 1. 先引入自定义依赖管理（规范顺序） -->
+            <!-- 1. 自定义依赖管理 -->
             <dependency>
                 <groupId>cn.iocoder.boot</groupId>
                 <artifactId>zhgd-dependencies</artifactId>
@@ -55,7 +53,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- 2. Dubbo 依赖（只保留一处，统一版本） -->
+            <!-- 2. Dubbo 依赖 -->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-starter</artifactId>
@@ -91,11 +89,24 @@
                 <version>2024.8-ynjtjt-SNAPSHOT</version>
             </dependency>
 
-            <!-- 5. 强制指定 quartz 版本 -->
+            <!-- 5. quartz 版本 -->
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>2.5.2</version>
+            </dependency>
+
+            <!-- 补充：MapStruct 依赖管理（避免子模块版本不一致） -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -106,19 +117,18 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version> <!-- 补充版本 -->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version> <!-- 核心：显式指定版本 -->
                     <configuration>
                         <source>17</source>
                         <target>17</target>
+                        <encoding>UTF-8</encoding> <!-- 补充编码 -->
                         <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.springframework.boot</groupId>
-                                <artifactId>spring-boot-configuration-processor</artifactId>
-                                <version>${spring.boot.version}</version>
-                            </path>
+                            <!-- 核心：调整注解处理器顺序（Lombok 在前） -->
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
@@ -127,12 +137,17 @@
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok-mapstruct-binding</artifactId>
-                                <version>0.2.0</version>
+                                <version>0.2.0</version> <!-- 适配 MapStruct 1.5.x -->
                             </path>
                             <path>
                                 <groupId>org.mapstruct</groupId>
                                 <artifactId>mapstruct-processor</artifactId>
                                 <version>${mapstruct.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                                <version>${spring.boot.version}</version>
                             </path>
                         </annotationProcessorPaths>
                         <debug>false</debug>
@@ -141,7 +156,6 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-                <!-- 2. pluginManagement 中明确指定 flatten 版本（关键！） -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
@@ -179,8 +193,7 @@
         </plugins>
     </build>
 
-
-    <!-- 插件仓库：补充阿里云，拉取 flatten 插件 -->
+    <!-- 插件仓库 -->
     <pluginRepositories>
         <pluginRepository>
             <id>aliyunmaven</id>
