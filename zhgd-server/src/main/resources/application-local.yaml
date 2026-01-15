@@ -30,6 +30,12 @@ dubbo:
     address: zookeeper://172.16.8.125:2181?client=curator&timeout=60000
 --- #################### 数据库相关配置 ####################
 spring:
+  # ========== 修正 Redis 核心配置 ==========
+  redis:
+    host: 172.16.9.201 # 地址
+    port: 6379 # 端口
+    database: 0 # 数据库索引
+    timeout: 5000ms # 连接超时时间
   autoconfigure:
     # noinspection SpringBootApplicationYaml
     exclude:
@@ -78,13 +84,7 @@ spring:
           username: ${common.datasource.mysql.workflow.username:zzsa}
           password: ${common.datasource.mysql.workflow.password:RymQLf8Vq7gxiLlIJjz1}
 
-  # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
-  data:
-    redis:
-      host: 172.16.9.201 # 地址
-      port: 6379 # 端口
-      database: 0 # 数据库索引
-#      password: dev # 密码，建议生产环境开启
+
 
 --- #################### 定时任务相关配置 ####################
 
