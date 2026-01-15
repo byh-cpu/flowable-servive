@@ -3,6 +3,8 @@ server:
 
 # ========== Nacos 配置 ==========
 nacos:
+  discovery:
+    enabled: false
   config:
     enabled: false
     server-addr: ${nacos_server_addr:172.16.9.88:18848}
@@ -13,8 +15,8 @@ nacos:
     type: properties
     auto-refresh: false
     bootstrap:
-      enable: true
-      log-enable: true
+      enable: false
+      log-enable: false
     username: ${nacos_username:nacos}
     password: ${nacos_password:sHL4RErzeB@kJMVnXPKfh9j}
 
