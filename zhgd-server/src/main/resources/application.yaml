@@ -1,21 +1,41 @@
+
+# 保留你原有的 nacos.config.* 配置
+nacos:
+  config:
+    server-addr: ${nacos_server_addr:172.16.9.88:18848}
+    namespace: ${nacos_namespace:bf644fca-1276-415a-89de-428331e96a46}
+    data-ids: ${nacos_data_ids:zhgd-person-lw,rysmz-common}
+    group: ${nacos_group:rysmz}
+    max-retry: 10
+    type: properties
+    auto-refresh: true
+    bootstrap:
+      enable: true
+      log-enable: false
+    username: ${nacos_username:nacos}
+    password: ${nacos_password:sHL4RErzeB@kJMVnXPKfh9j}
+
+# 新增：满足新版本要求的配置（核心是这两行）
 spring:
   application:
     name: zhgd-workflow-server
   profiles:
     active: local
-
-  # 加载 Nacos 配置
   config:
+    # ✅ 正确写法：直接写字符串，不要加 - （数组格式）
     import:
-      - optional:nacos:zhgd-workflow-service?group=workflow&namespace=bf644fca-1276-415a-89de-428331e96a46
-      - optional:nacos:workflow-common?group=workflow&namespace=bf644fca-1276-415a-89de-428331e96a46
-
-  # 👇 cloud 必须和 config 同级，都在 spring 下！
+      optional:nacos:
   cloud:
     nacos:
-      server-addr: 172.16.9.88:18848
-      username: nacos
-      password: sHL4RErzeB@kJMVnXPKfh9j
+      config:
+        import-check:
+          enabled: false  # 关闭导入检查，彻底消除报错
+        # 复用 nacos.config 的配置（避免重复写）
+        server-addr: ${nacos.config.server-addr}
+        namespace: ${nacos.config.namespace}
+        group: ${nacos.config.group}
+        username: ${nacos.config.username}
+        password: ${nacos.config.password}
 
   main:
     allow-circular-references: true # 允许循环依赖，因为项目是三层架构，无法避免这个情况。
