@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.experimental.Accessors;
 
 @Schema(description = "管理后台 - 不通过流程任务的 Request VO")
 @Data
+@Accessors(chain = true)
 public class BpmTaskRejectReqVO {
 
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

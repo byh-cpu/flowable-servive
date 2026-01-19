@@ -6,6 +6,7 @@ import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +41,7 @@ public class BpmApprovalDetailRespVO {
 
     @Schema(description = "活动节点信息")
     @Data
+    @Accessors(chain = true)
     public static class ActivityNode {
 
         @Schema(description = "节点编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "StartUserNode")
@@ -79,6 +81,7 @@ public class BpmApprovalDetailRespVO {
 
     @Schema(description = "活动节点的任务信息")
     @Data
+    @Accessors(chain = true)
     public static class ActivityNodeTask {
 
         @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

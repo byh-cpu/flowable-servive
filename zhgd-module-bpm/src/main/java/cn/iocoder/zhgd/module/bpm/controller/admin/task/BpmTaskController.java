@@ -16,11 +16,15 @@ import cn.iocoder.zhgd.module.system.api.dept.DeptApi;
 import cn.iocoder.zhgd.module.system.api.dept.dto.DeptRespDTO;
 import cn.iocoder.zhgd.module.system.api.user.AdminUserApi;
 import cn.iocoder.zhgd.module.system.api.user.dto.AdminUserRespDTO;
+import cn.pinming.v2.authority.api.dto.AuthorityDepartmentQueryDto;
 import cn.pinming.v2.authority.api.dto.AuthorityRoleDto;
 import cn.pinming.v2.authority.api.dto.OrganizeRoleQueryDto;
 import cn.pinming.v2.authority.api.service.AuthorityRoleService;
 
+import cn.pinming.v2.authority.api.service.DepartmentRoleService;
+import cn.pinming.zhuang.api.company.dto.EmployeeDto;
 import cn.pinming.zhuang.api.company.dto.EmployeeFrontDto;
+import cn.pinming.zhuang.api.company.dto.EmployeeQueryDto;
 import cn.pinming.zhuang.api.company.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,10 +42,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import cn.pinming.v2.passport.api.service.MemberService;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Stream;
 
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
@@ -69,20 +71,81 @@ public class BpmTaskController {
     private DeptApi deptApi;
     @DubboReference
     private MemberService memberService;
-//    @DubboReference
-//    private AuthorityRoleService authorityRoleService;
-//    @DubboReference
-//    private EmployeeService employeeService;
+    @DubboReference
+    private AuthorityRoleService authorityRoleService;
+    @DubboReference
+    private EmployeeService employeeService;
+    @DubboReference
+    private DepartmentRoleService DepartmentRoleService;
+
 
     @GetMapping("say-hello")
-    public List<EmployeeFrontDto> test() {
-        OrganizeRoleQueryDto organizeRoleQueryDto=new OrganizeRoleQueryDto();
-        organizeRoleQueryDto.setCompanyId(11609);
-        String abs= String.valueOf(memberService.findMemberByMemberNo("1213"));
-        List<EmployeeFrontDto> employeeFrontDtos=null;
-//        List<AuthorityRoleDto>  authorityRoleDtoList=authorityRoleService.organizeRoleList(organizeRoleQueryDto);
+    public List<AuthorityRoleDto> test() {
+        // 1. 初始化组织角色查询DTO（核心修改：替换不可变列表为ArrayList）
+        OrganizeRoleQueryDto organizeRoleQueryDto = new OrganizeRoleQueryDto();
+
+        // 创建普通ArrayList（解决Java 17 + Hessian序列化兼容问题）
+        List<AuthorityDepartmentQueryDto> deptList = new ArrayList<>();
+        AuthorityDepartmentQueryDto authorityDepartmentQueryDto = new AuthorityDepartmentQueryDto();
+        authorityDepartmentQueryDto.setDepartmentId(4402);
+        deptList.add(authorityDepartmentQueryDto); // 加入普通列表
+
+        organizeRoleQueryDto.setDepartment(deptList); // 赋值普通列表（关键修复）
+        organizeRoleQueryDto.setCompanyId(11864);
+
+        // 2. 初始化员工查询DTO
+        EmployeeQueryDto employeeQueryDto = new EmployeeQueryDto();
+        employeeQueryDto.setCoid(11864);
+        employeeQueryDto.setDepartmentId(4402);
+
+        // 3. 调用服务（补充空指针防护，避免NPE）
+        String abs = "";
+        try {
+            // 防护：避免memberService返回null导致String.valueOf(null)报错
+            Object member = memberService.findMemberByMemberNo("1213");
+            abs = String.valueOf(member == null ? "无会员信息" : member);
+        } catch (Exception e) {
+            abs = "查询会员失败：" + e.getMessage();
+            e.printStackTrace(); // 本地开发可打印异常，生产建议用日志框架
+        }
+
+        // 防护：避免员工列表查询返回null
+        List<EmployeeDto> employeeFrontDtos = new ArrayList<>();
+        try {
+            employeeFrontDtos = employeeService.findEmployeeListByDepartMentId(employeeQueryDto);
+            if (employeeFrontDtos == null) {
+                employeeFrontDtos = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 4. 调用Dubbo服务（修复序列化后可正常调用）
+        List<AuthorityRoleDto> authorityRoleDtoList = new ArrayList<>();
+        try {
+            authorityRoleDtoList = authorityRoleService.organizeRoleList(organizeRoleQueryDto);
+            if (authorityRoleDtoList == null) {
+                authorityRoleDtoList = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 异常时返回空列表，避免接口返回null导致前端报错
+            authorityRoleDtoList = new ArrayList<>();
+        }
+
+        // 5. 查询部门角色（补充防护）
+        List<AuthorityRoleDto> authorityRoleDtoList1 = new ArrayList<>();
+        try {
+            authorityRoleDtoList1 = DepartmentRoleService.findDepartmentRoleId(4402);
+            if (authorityRoleDtoList1 == null) {
+                authorityRoleDtoList1 = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println(abs);
-        return employeeFrontDtos;
+        return authorityRoleDtoList;
     }
     @Value("${spring.redis.host}")
     private String redisHost;

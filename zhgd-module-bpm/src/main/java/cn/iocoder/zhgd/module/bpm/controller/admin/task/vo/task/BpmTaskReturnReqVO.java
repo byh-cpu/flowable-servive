@@ -1,12 +1,15 @@
 package cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.experimental.Accessors;
 
 @Schema(description = "管理后台 - 退回流程任务的 Request VO")
 @Data
+@Accessors(chain = true)
 public class BpmTaskReturnReqVO {
 
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

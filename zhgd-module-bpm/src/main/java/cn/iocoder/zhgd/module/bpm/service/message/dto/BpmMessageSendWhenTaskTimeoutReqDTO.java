@@ -3,11 +3,13 @@ package cn.iocoder.zhgd.module.bpm.service.message.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * BPM 发送任务审批超时 Request DTO
  */
 @Data
+@Accessors(chain = true)
 public class BpmMessageSendWhenTaskTimeoutReqDTO {
 
     /**

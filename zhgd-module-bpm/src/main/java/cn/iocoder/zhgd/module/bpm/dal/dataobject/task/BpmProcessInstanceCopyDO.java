@@ -4,6 +4,7 @@ import cn.iocoder.zhgd.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.experimental.Accessors;
 import org.flowable.bpmn.model.FlowNode;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class BpmProcessInstanceCopyDO extends BaseDO {
 
     /**

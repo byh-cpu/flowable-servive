@@ -5,9 +5,11 @@ import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.experimental.Accessors;
 
 @Schema(description = "管理后台 - 流程任务的转办 Request VO")
 @Data
+@Accessors(chain = true)
 public class BpmTaskTransferReqVO {
 
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

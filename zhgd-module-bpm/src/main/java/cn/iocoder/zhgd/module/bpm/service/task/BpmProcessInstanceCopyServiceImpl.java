@@ -9,6 +9,7 @@ import cn.iocoder.zhgd.module.bpm.enums.ErrorCodeConstants;
 import cn.iocoder.zhgd.module.bpm.service.definition.BpmProcessDefinitionService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
@@ -30,6 +31,7 @@ import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.c
 @Service
 @Validated
 @Slf4j
+@DubboService
 public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopyService {
 
     @Resource

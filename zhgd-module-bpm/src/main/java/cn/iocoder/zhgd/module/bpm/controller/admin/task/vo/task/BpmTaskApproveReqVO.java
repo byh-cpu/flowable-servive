@@ -3,12 +3,14 @@ package cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 import java.util.Map;
 
 @Schema(description = "管理后台 - 通过流程任务的 Request VO")
 @Data
+@Accessors(chain = true)
 public class BpmTaskApproveReqVO {
 
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

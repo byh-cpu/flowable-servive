@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Map;
 
 @Schema(description = "管理后台 - 审批详情 Request VO")
 @Data
+@Accessors(chain = true)
 public class BpmApprovalDetailReqVO {
 
     @Schema(description = "流程定义的编号", example = "1024")

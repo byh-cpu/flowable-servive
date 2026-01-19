@@ -32,12 +32,7 @@
             <version>2024.8-ynjtjt-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-spring-boot-starter</artifactId>
-            <version>3.2.0</version> <!-- 与你的 Dubbo 版本一致 -->
-            <scope>test</scope> <!-- 仅测试时使用 -->
-        </dependency>
+
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
@@ -100,4 +95,15 @@
             <artifactId>flowable-spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
+    <!-- ========== 部署到私有 Nexus 仓库 ========== -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>pinming-nexus-snapshots</id>
+            <url>https://nexus.pinming.org/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>pinming-nexus-releases</id>
+            <url>https://nexus.pinming.org/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
 </project>

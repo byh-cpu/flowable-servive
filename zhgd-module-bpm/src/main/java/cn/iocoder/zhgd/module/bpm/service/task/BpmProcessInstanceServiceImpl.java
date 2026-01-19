@@ -47,6 +47,7 @@ import cn.iocoder.zhgd.module.system.api.user.dto.AdminUserRespDTO;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.flowable.bpmn.constants.BpmnXMLConstants;
 import org.flowable.bpmn.model.*;
 import org.flowable.engine.HistoryService;
@@ -95,6 +96,7 @@ import static org.flowable.bpmn.constants.BpmnXMLConstants.*;
 @Service
 @Validated
 @Slf4j
+@DubboService
 public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService {
 
     @Resource
