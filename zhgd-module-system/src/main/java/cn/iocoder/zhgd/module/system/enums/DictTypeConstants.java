@@ -7,6 +7,8 @@ package cn.iocoder.zhgd.module.system.enums;
  */
 public interface DictTypeConstants {
 
+    String BOOLEAN_STRING = "infra_boolean_string"; // Boolean 是否类型
+
     String USER_TYPE = "user_type"; // 用户类型
     String COMMON_STATUS = "common_status"; // 系统状态
 

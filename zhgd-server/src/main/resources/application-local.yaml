@@ -25,14 +25,36 @@ dubbo:
   application:
     id: gddnTunnelMonitor
     name: gddnTunnelMonitor
+    register-mode: interface # 保留你的配置，适配 Zookeeper
   protocol:
-    port: 20804
+    port: 20804 # 保留你的端口配置
   consumer:
-    group: pms_k8s_test05
+    group: pms_k8s_test05 # 保留你的分组配置
+    check: false # 新增：禁用消费者启动时检查服务是否存在
+    timeout: 60000 # 新增：消费者调用超时
+    migration:
+      enabled: false # 新增：禁用 Dubbo 3.x 服务发现迁移
   provider:
-    group: pms_k8s_test05
+    group: pms_k8s_test05 # 保留你的分组配置
+  config-center:
+    enabled: false # 保留你的配置，禁用配置中心
+  metadata-report:
+    enabled: false # 保留你的配置，禁用元数据中心
   registry:
-    address: zookeeper://172.16.8.125:2181?client=curator&timeout=60000
+    # 优化地址格式：将参数拆分，更易维护
+    address: zookeeper://172.16.8.125:2181
+    client: curator # 拆分参数，避免 URL 拼接错误
+    timeout: 120000 # 新增：大幅增加连接超时（120秒）
+    check: false # 新增：核心！禁用注册中心启动检查
+    use-as-config-center: false # 保留你的配置
+    use-as-metadata-center: false # 保留你的配置
+    # 新增：Curator 客户端重试策略（解决连接延迟问题）
+    parameters:
+      sessionTimeout: 60000 # 会话超时
+      connectionTimeout: 30000 # 连接超时
+      retryTimes: 20 # 重试次数
+      retryInterval: 1000 # 重试间隔（毫秒）
+      background: true # 新增：后台建立连接，不阻塞启动
 
 # ========== Spring 核心配置 ==========
 spring:

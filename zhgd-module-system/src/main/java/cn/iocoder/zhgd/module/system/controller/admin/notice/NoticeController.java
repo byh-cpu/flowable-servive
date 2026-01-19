@@ -5,7 +5,7 @@ import cn.iocoder.zhgd.framework.common.enums.UserTypeEnum;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
-import cn.iocoder.zhgd.module.infra.api.websocket.WebSocketSenderApi;
+import cn.iocoder.zhgd.module.system.api.websocket.WebSocketSenderApi;
 import cn.iocoder.zhgd.module.system.controller.admin.notice.vo.NoticePageReqVO;
 import cn.iocoder.zhgd.module.system.controller.admin.notice.vo.NoticeRespVO;
 import cn.iocoder.zhgd.module.system.controller.admin.notice.vo.NoticeSaveReqVO;

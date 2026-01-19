@@ -35,10 +35,10 @@
     <file url="file://$PROJECT_DIR$/zhgd-framework/zhgd-spring-boot-starter-web/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-framework/zhgd-spring-boot-starter-websocket/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-framework/zhgd-spring-boot-starter-websocket/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zhgd-module-bpm-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zhgd-module-bpm-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-module-bpm/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-module-bpm/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/zhgd-module-infra/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/zhgd-module-infra/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-module-system/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-module-system/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zhgd-server/src/main/java" charset="UTF-8" />

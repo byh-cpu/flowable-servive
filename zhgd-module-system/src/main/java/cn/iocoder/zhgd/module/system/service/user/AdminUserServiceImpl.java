@@ -12,7 +12,6 @@ import cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.zhgd.framework.datapermission.core.util.DataPermissionUtils;
-import cn.iocoder.zhgd.module.infra.api.config.ConfigApi;
 import cn.iocoder.zhgd.module.system.controller.admin.auth.vo.AuthRegisterReqVO;
 import cn.iocoder.zhgd.module.system.controller.admin.user.vo.profile.UserProfileUpdatePasswordReqVO;
 import cn.iocoder.zhgd.module.system.controller.admin.user.vo.profile.UserProfileUpdateReqVO;
@@ -37,6 +36,7 @@ import com.mzt.logapi.starter.annotation.LogRecord;
 import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,9 +59,7 @@ import static cn.iocoder.zhgd.module.system.enums.LogRecordConstants.*;
 @Slf4j
 public class AdminUserServiceImpl implements AdminUserService {
 
-    static final String USER_INIT_PASSWORD_KEY = "system.user.init-password";
-
-    static final String USER_REGISTER_ENABLED_KEY = "system.user.register-enabled";
+    private static final String USER_INIT_PASSWORD_KEY = "system.user.init-password";
 
     @Resource
     private AdminUserMapper userMapper;
@@ -84,8 +82,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Resource
     private UserPostMapper userPostMapper;
 
-    @Resource
-    private ConfigApi configApi;
+    @Value("${system.user.init-password:}")
+    private String userInitPassword;
+
+    @Value("${system.user.register-enabled:false}")
+    private boolean userRegisterEnabled;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -121,7 +122,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Long registerUser(AuthRegisterReqVO registerReqVO) {
         // 1.1 校验是否开启注册
-        if (ObjUtil.notEqual(configApi.getConfigValueByKey(USER_REGISTER_ENABLED_KEY), "true")) {
+        if (!userRegisterEnabled) {
             throw exception(USER_REGISTER_DISABLED);
         }
         // 1.2 校验账户配合
@@ -476,7 +477,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             throw exception(USER_IMPORT_LIST_IS_EMPTY);
         }
         // 1.2 初始化密码不能为空
-        String initPassword = configApi.getConfigValueByKey(USER_INIT_PASSWORD_KEY);
+        String initPassword = userInitPassword;
         if (StrUtil.isEmpty(initPassword)) {
             throw exception(USER_IMPORT_INIT_PASSWORD);
         }

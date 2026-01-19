@@ -12,7 +12,7 @@
         <module>zhgd-framework</module>
         <module>zhgd-server</module>
         <module>zhgd-module-system</module>
-        <module>zhgd-module-infra</module>
+        <module>zhgd-module-bpm-api</module>
         <module>zhgd-module-bpm</module>
     </modules>
 

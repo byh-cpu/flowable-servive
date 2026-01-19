@@ -2,7 +2,7 @@ package cn.iocoder.zhgd.module.system.framework.operatelog.core;
 
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.dict.core.DictFrameworkUtils;
-import cn.iocoder.zhgd.module.infra.enums.DictTypeConstants;
+import cn.iocoder.zhgd.module.system.enums.DictTypeConstants;
 import com.mzt.logapi.service.IParseFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

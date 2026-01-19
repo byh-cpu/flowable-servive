@@ -4,6 +4,7 @@ import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
  * @author jason
  */
 @Service
+@DubboService
 @Validated
 public class BpmProcessInstanceApiImpl implements BpmProcessInstanceApi {
 

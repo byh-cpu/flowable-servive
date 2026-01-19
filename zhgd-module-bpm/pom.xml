@@ -27,6 +27,11 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>cn.iocoder.boot</groupId>
+            <artifactId>zhgd-module-bpm-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>cn.pinming</groupId>
             <artifactId>zhuang</artifactId>
             <version>2024.8-ynjtjt-SNAPSHOT</version>

@@ -4,13 +4,14 @@ import cn.iocoder.zhgd.module.bpm.enums.definition.BpmTriggerTypeEnum;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.util.BpmnModelUtils;
 import cn.iocoder.zhgd.module.bpm.service.task.trigger.BpmTrigger;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -30,8 +31,8 @@ public class BpmTriggerTaskDelegate implements JavaDelegate {
 
     public static final String BEAN_NAME = "bpmTriggerTaskDelegate";
 
-    @Resource
-    private List<BpmTrigger> triggers;
+    @Autowired(required = false)
+    private List<BpmTrigger> triggers = Collections.emptyList();
 
     private final EnumMap<BpmTriggerTypeEnum, BpmTrigger> triggerMap = new EnumMap<>(BpmTriggerTypeEnum.class);
 

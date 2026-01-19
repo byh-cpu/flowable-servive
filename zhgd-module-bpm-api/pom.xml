@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>zhgd-workflow-service</artifactId>
+        <groupId>cn.iocoder.boot</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>zhgd-module-bpm-api</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>bpm 模块对外 API 定义（Dubbo 接口与 DTO）</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ========== 部署到私有 Nexus 仓库 ========== -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>pinming-nexus-snapshots</id>
+            <url>https://nexus.pinming.org/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>pinming-nexus-releases</id>
+            <url>https://nexus.pinming.org/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+</project>

@@ -12,16 +12,13 @@
           <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
           <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
           <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/springframework/boot/spring-boot-configuration-processor/3.5.5/spring-boot-configuration-processor-3.5.5.jar" />
-          <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-          <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
-          <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
-          <entry name="$PROJECT_DIR$/../../../maven/maven-repository/org/springframework/boot/spring-boot-configuration-processor/3.5.5/spring-boot-configuration-processor-3.5.5.jar" />
         </processorPath>
         <module name="zhgd-spring-boot-starter-monitor" />
         <module name="zhgd-spring-boot-starter-test" />
         <module name="zhgd-spring-boot-starter-protection" />
         <module name="zhgd-common" />
         <module name="zhgd-module-system" />
+        <module name="zhgd-module-bpm-api" />
         <module name="zhgd-spring-boot-starter-job" />
         <module name="zhgd-spring-boot-starter-websocket" />
         <module name="zhgd-spring-boot-starter-biz-data-permission" />
@@ -31,7 +28,6 @@
         <module name="zhgd-spring-boot-starter-security" />
         <module name="zhgd-spring-boot-starter-biz-tenant" />
         <module name="zhgd-spring-boot-starter-web" />
-        <module name="zhgd-module-infra" />
         <module name="zhgd-workflow-server" />
         <module name="zhgd-spring-boot-starter-mq" />
         <module name="zhgd-spring-boot-starter-mybatis" />
@@ -40,6 +36,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="yudao-spring-boot-starter-websocket" target="17" />
+      <module name="zhgd-module-infra" target="17" />
       <module name="zhgd-server" target="17" />
     </bytecodeTargetLevel>
   </component>
@@ -48,6 +45,7 @@
       <module name="yudao-spring-boot-starter-websocket" options="-parameters" />
       <module name="zhgd-common" options="-parameters" />
       <module name="zhgd-module-bpm" options="-parameters" />
+      <module name="zhgd-module-bpm-api" options="-parameters" />
       <module name="zhgd-module-infra" options="-parameters" />
       <module name="zhgd-module-system" options="-parameters" />
       <module name="zhgd-server" options="-parameters" />
