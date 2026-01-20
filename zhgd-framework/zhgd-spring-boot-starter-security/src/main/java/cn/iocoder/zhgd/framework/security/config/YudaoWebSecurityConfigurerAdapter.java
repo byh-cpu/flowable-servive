@@ -147,7 +147,7 @@ public class YudaoWebSecurityConfigurerAdapter {
                 // ③：兜底规则，必须认证
                 .authorizeHttpRequests(c -> c
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll() // WebFlux 异步请求，无需认证，目的：SSE 场景
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         // 添加 Token Filter
         httpSecurity.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
