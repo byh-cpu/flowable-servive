@@ -87,7 +87,7 @@ public class BpmTaskController {
         // 创建普通ArrayList（解决Java 17 + Hessian序列化兼容问题）
         List<AuthorityDepartmentQueryDto> deptList = new ArrayList<>();
         AuthorityDepartmentQueryDto authorityDepartmentQueryDto = new AuthorityDepartmentQueryDto();
-        authorityDepartmentQueryDto.setDepartmentId(4402);
+        //authorityDepartmentQueryDto.setDepartmentId(4402);
         deptList.add(authorityDepartmentQueryDto); // 加入普通列表
 
         organizeRoleQueryDto.setDepartment(deptList); // 赋值普通列表（关键修复）
