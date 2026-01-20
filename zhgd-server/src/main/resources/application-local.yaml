@@ -25,36 +25,43 @@ dubbo:
   application:
     id: gddnTunnelMonitor
     name: gddnTunnelMonitor
-    register-mode: interface # 保留你的配置，适配 Zookeeper
+    register-mode: interface # 保留你的原有配置
   protocol:
-    port: 20804 # 保留你的端口配置
+    port: 20804 # 保留你的原有端口
+  # ========== 核心新增：配置 Dubbo 服务扫描路径 ==========
+  scan:
+    # 替换成你实际的 @DubboService 注解类所在的包路径
+    # 示例：如果你的 BpmProcessInstanceApiImpl 在 cn.iocoder.zhgd.module.bpm.api 下，就写这个包
+    base-packages: cn.iocoder.zhgd.module.bpm.api
+  # ========== 原有消费者配置（保留+优化） ==========
   consumer:
-    group: pms_k8s_test05 # 保留你的分组配置
-    check: false # 新增：禁用消费者启动时检查服务是否存在
-    timeout: 60000 # 新增：消费者调用超时
+    group: pms_k8s_test05
+    check: false # 保留：禁用启动时检查服务
+    timeout: 60000 # 保留：调用超时
     migration:
-      enabled: false # 新增：禁用 Dubbo 3.x 服务发现迁移
+      enabled: false # 保留：禁用 3.x 迁移
+  # ========== 原有提供者配置（保留） ==========
   provider:
-    group: pms_k8s_test05 # 保留你的分组配置
+    group: pms_k8s_test05
+  # ========== 配置中心/元数据中心（保留） ==========
   config-center:
-    enabled: false # 保留你的配置，禁用配置中心
+    enabled: false
   metadata-report:
-    enabled: false # 保留你的配置，禁用元数据中心
+    enabled: false
+  # ========== 注册中心配置（保留+优化） ==========
   registry:
-    # 优化地址格式：将参数拆分，更易维护
     address: zookeeper://172.16.8.125:2181
-    client: curator # 拆分参数，避免 URL 拼接错误
-    timeout: 120000 # 新增：大幅增加连接超时（120秒）
-    check: false # 新增：核心！禁用注册中心启动检查
-    use-as-config-center: false # 保留你的配置
-    use-as-metadata-center: false # 保留你的配置
-    # 新增：Curator 客户端重试策略（解决连接延迟问题）
+    client: curator
+    timeout: 120000
+    check: false # 核心：禁用注册中心启动检查，避免阻塞
+    use-as-config-center: false
+    use-as-metadata-center: false
     parameters:
-      sessionTimeout: 60000 # 会话超时
-      connectionTimeout: 30000 # 连接超时
-      retryTimes: 20 # 重试次数
-      retryInterval: 1000 # 重试间隔（毫秒）
-      background: true # 新增：后台建立连接，不阻塞启动
+      sessionTimeout: 60000
+      connectionTimeout: 30000
+      retryTimes: 20
+      retryInterval: 1000
+      background: true # 保留：后台连接，不阻塞启动
 
 # ========== Spring 核心配置 ==========
 spring:
