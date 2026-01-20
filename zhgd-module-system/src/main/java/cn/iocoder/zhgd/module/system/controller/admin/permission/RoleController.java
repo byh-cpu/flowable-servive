@@ -12,19 +12,26 @@ import cn.iocoder.zhgd.module.system.controller.admin.permission.vo.role.RoleRes
 import cn.iocoder.zhgd.module.system.controller.admin.permission.vo.role.RoleSaveReqVO;
 import cn.iocoder.zhgd.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.zhgd.module.system.service.permission.RoleService;
+import cn.pinming.v2.authority.api.dto.AuthorityDepartmentQueryDto;
+import cn.pinming.v2.authority.api.dto.AuthorityRoleDto;
+import cn.pinming.v2.authority.api.dto.OrganizeRoleQueryDto;
+import cn.pinming.v2.authority.api.service.AuthorityRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cn.iocoder.zhgd.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
@@ -38,6 +45,30 @@ public class RoleController {
 
     @Resource
     private RoleService roleService;
+
+    @DubboReference
+    private AuthorityRoleService authorityRoleService;
+
+    @PostMapping("/organizeRoleList")
+    @Operation(summary = "获取组织下的角色")
+    public CommonResult<List<RoleRespVO>> getOrganizeRoleList(@RequestBody OrganizeRoleQueryDto queryDto) {
+        if (queryDto.getDepartment() == null) {
+            List<AuthorityDepartmentQueryDto> department = new ArrayList<>();
+            AuthorityDepartmentQueryDto departmentQueryDto = new AuthorityDepartmentQueryDto();
+            department.add(departmentQueryDto);
+            queryDto.setDepartment(department);
+        }
+        List<AuthorityRoleDto> authorityRoleDtoList = authorityRoleService.organizeRoleList(queryDto);
+        List<RoleRespVO> voList = authorityRoleDtoList.stream()
+                .map(dto -> {
+                    RoleRespVO vo = new RoleRespVO();
+                    vo.setId(Long.valueOf(dto.getRoleId()));
+                    vo.setName(dto.getRoleName());
+                    return vo;
+                })
+                .toList();
+        return success(voList);
+    }
 
     @PostMapping("/create")
     @Operation(summary = "创建角色")

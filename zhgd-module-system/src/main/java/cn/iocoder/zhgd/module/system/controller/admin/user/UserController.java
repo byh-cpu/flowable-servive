@@ -16,6 +16,10 @@ import cn.iocoder.zhgd.module.system.service.dept.DeptService;
 import cn.iocoder.zhgd.module.system.service.user.AdminUserService;
 import cn.pinming.core.common.model.PageList;
 import cn.pinming.core.common.model.Pagination;
+import cn.pinming.v2.authority.api.dto.AuthorityDepartmentQueryDto;
+import cn.pinming.v2.authority.api.dto.AuthorityRoleDto;
+import cn.pinming.v2.authority.api.dto.OrganizeRoleQueryDto;
+import cn.pinming.v2.authority.api.service.AuthorityRoleService;
 import cn.pinming.v2.common.QueryPagination;
 import cn.pinming.v2.company.api.dto.EmployeeDto;
 import cn.pinming.v2.company.api.dto.EmployeeFilterDto;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -58,12 +63,23 @@ public class UserController {
 
     @PostMapping({"/listAllSimple", "/simpleList"})
     @Operation(summary = "获取用户精简信息列表", description = "主要用于前端的下拉选项")
-    public CommonResult<PageList<EmployeeDto>> getSimpleUserList(@RequestBody EmployeeFilterDto queryDto) {
+    public CommonResult<List<UserSimpleRespVO>> getSimpleUserList(@RequestBody EmployeeFilterDto queryDto) {
         QueryPagination<EmployeeFilterDto> filterQuery = new QueryPagination<>();
         filterQuery.setT(queryDto);
-        filterQuery.setPagination(new Pagination(1, 100));
-        PageList<EmployeeDto> result = employeeService.findEmployeeByFilter(filterQuery);
-        return success(result);
+        filterQuery.setPagination(new Pagination(1, 1000));
+        PageList<EmployeeDto> pageList = employeeService.findEmployeeByFilter(filterQuery);
+        List<UserSimpleRespVO> voList = pageList.getDataList().stream()
+                .map(dto -> {
+                    UserSimpleRespVO vo = new UserSimpleRespVO();
+                    vo.setId(dto.getMemberId());
+                    vo.setNickname(dto.getMemberName());
+                    if (dto.getDepartmentId() != null) {
+                        vo.setDeptId(dto.getDepartmentId());
+                    }
+                    vo.setDeptName(vo.getDeptName());
+                    return vo;
+                }).toList();
+        return success(voList);
     }
 
     @PostMapping("/create")
