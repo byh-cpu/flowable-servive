@@ -258,7 +258,7 @@ zhgd:
     delete-batch-enable: true
     unit-test-enable: false
   tenant:
-    enable: true
+    enable: false
     ignore-urls:
       - /jmreport/*
     ignore-visit-urls:
