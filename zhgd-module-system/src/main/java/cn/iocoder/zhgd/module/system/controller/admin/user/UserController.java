@@ -14,6 +14,12 @@ import cn.iocoder.zhgd.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.zhgd.module.system.enums.common.SexEnum;
 import cn.iocoder.zhgd.module.system.service.dept.DeptService;
 import cn.iocoder.zhgd.module.system.service.user.AdminUserService;
+import cn.pinming.core.common.model.PageList;
+import cn.pinming.core.common.model.Pagination;
+import cn.pinming.v2.common.QueryPagination;
+import cn.pinming.v2.company.api.dto.EmployeeDto;
+import cn.pinming.v2.company.api.dto.EmployeeFilterDto;
+import cn.pinming.v2.company.api.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -21,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +52,19 @@ public class UserController {
     private AdminUserService userService;
     @Resource
     private DeptService deptService;
+
+    @DubboReference
+    private EmployeeService employeeService;
+
+    @PostMapping({"/listAllSimple", "/simpleList"})
+    @Operation(summary = "获取用户精简信息列表", description = "主要用于前端的下拉选项")
+    public CommonResult<PageList<EmployeeDto>> getSimpleUserList(@RequestBody EmployeeFilterDto queryDto) {
+        QueryPagination<EmployeeFilterDto> filterQuery = new QueryPagination<>();
+        filterQuery.setT(queryDto);
+        filterQuery.setPagination(new Pagination(1, 100));
+        PageList<EmployeeDto> result = employeeService.findEmployeeByFilter(filterQuery);
+        return success(result);
+    }
 
     @PostMapping("/create")
     @Operation(summary = "新增用户")
@@ -112,7 +132,7 @@ public class UserController {
                 pageResult.getTotal()));
     }
 
-    @GetMapping({"/list-all-simple", "/simple-list"})
+    /*@GetMapping({"/list-all-simple", "/simple-list"})
     @Operation(summary = "获取用户精简信息列表", description = "只包含被开启的用户，主要用于前端的下拉选项")
     public CommonResult<List<UserSimpleRespVO>> getSimpleUserList() {
         List<AdminUserDO> list = userService.getUserListByStatus(CommonStatusEnum.ENABLE.getStatus());
@@ -120,7 +140,7 @@ public class UserController {
         Map<Long, DeptDO> deptMap = deptService.getDeptMap(
                 convertList(list, AdminUserDO::getDeptId));
         return success(UserConvert.INSTANCE.convertSimpleList(list, deptMap));
-    }
+    }*/
 
     @GetMapping("/get")
     @Operation(summary = "获得用户详情")
