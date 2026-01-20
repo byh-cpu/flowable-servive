@@ -193,7 +193,7 @@ zhgd:
       enable: true
       base-url: https://api.holdai.top/mj
       api-key: sk-dZEPiVaNcT3FHhef51996bAa0bC74806BeAb620dA5Da10Bf
-      notify-url: http://java.nat300.top/admin-api/ai/image/midjourney/notify
+      notify-url: http://java.nat300.top/api/ai/image/midjourney/notify
     suno:
       enable: true
       base-url: http://127.0.0.1:3001
@@ -208,6 +208,12 @@ zhgd:
     version: 1.0.0
     base-package: cn.iocoder.zhgd
   web:
+    app-api:
+      prefix: /app-api
+      controller: "**.controller.app.**"
+    admin-api:
+      prefix: /api
+      controller: "**.controller.admin.**"
     admin-ui:
       url: http://dashboard.zhgd.iocoder.cn
   xss:
@@ -217,7 +223,7 @@ zhgd:
       - ${management.endpoints.web.base-path}/**
   security:
     permit-all_urls:
-      - /admin-api/mp/open/**
+      - /api/mp/open/**
   api-encrypt:
     enable: true
     algorithm: AES

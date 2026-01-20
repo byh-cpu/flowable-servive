@@ -261,14 +261,21 @@ wx:
 
 # ========== 芋道自定义配置 ==========
 zhgd:
+  web:
+    app-api:
+      prefix: /app-api
+      controller: "**.controller.app.**"
+    admin-api:
+      prefix: /api
+      controller: "**.controller.admin.**"
   captcha:
     enable: false
   security:
     mock-enable: true
   pay:
-    order-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/order
-    refund-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/refund
-    transfer-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/transfer
+    order-notify-url: https://yutou.mynatapp.cc/api/pay/notify/order
+    refund-notify-url: https://yutou.mynatapp.cc/api/pay/notify/refund
+    transfer-notify-url: https://yutou.mynatapp.cc/api/pay/notify/transfer
   access-log:
     enable: false
   demo: false
