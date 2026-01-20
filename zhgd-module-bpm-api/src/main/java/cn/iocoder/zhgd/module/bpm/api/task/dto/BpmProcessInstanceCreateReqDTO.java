@@ -3,6 +3,8 @@ package cn.iocoder.zhgd.module.bpm.api.task.dto;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import java.util.Map;
  * @author 芋道源码
  */
 @Data
+@Setter
 public class BpmProcessInstanceCreateReqDTO {
 
     /**
