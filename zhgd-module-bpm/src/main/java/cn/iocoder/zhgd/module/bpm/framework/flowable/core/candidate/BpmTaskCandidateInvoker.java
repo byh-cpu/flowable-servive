@@ -8,6 +8,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.zhgd.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.zhgd.framework.common.util.object.ObjectUtils;
 import cn.iocoder.zhgd.framework.datapermission.core.annotation.DataPermission;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.module.bpm.enums.definition.BpmUserTaskApproveTypeEnum;
 import cn.iocoder.zhgd.module.bpm.enums.definition.BpmUserTaskAssignStartUserHandlerTypeEnum;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.enums.BpmTaskCandidateStrategyEnum;
@@ -89,7 +90,7 @@ public class BpmTaskCandidateInvoker {
      * @return 用户编号集合
      */
     @DataPermission(enable = false) // 忽略数据权限，避免因为过滤，导致找不到候选人
-    public Set<Long> calculateUsersByTask(DelegateExecution execution) {
+    public Set<String> calculateUsersByTask(DelegateExecution execution) {
         // 注意：解决极端情况下，Flowable 异步调用，导致租户 id 丢失的情况
         // 例如说，SIMPLE 延迟器在 trigger 的时候！！！
         return FlowableUtils.execute(execution.getTenantId(), () -> {
@@ -105,7 +106,7 @@ public class BpmTaskCandidateInvoker {
             // 1.1 计算任务的候选人
             Integer strategy = BpmnModelUtils.parseCandidateStrategy(flowElement);
             String param = BpmnModelUtils.parseCandidateParam(flowElement);
-            Set<Long> userIds = getCandidateStrategy(strategy).calculateUsersByTask(execution, param);
+            Set<String> userIds = getCandidateStrategy(strategy).calculateUsersByTask(execution, param);
             // 1.2 移除被禁用的用户
             removeDisableUsers(userIds);
 
@@ -120,14 +121,14 @@ public class BpmTaskCandidateInvoker {
             ProcessInstance processInstance = SpringUtil.getBean(BpmProcessInstanceService.class)
                     .getProcessInstance(execution.getProcessInstanceId());
             Assert.notNull(processInstance, "流程实例({}) 不存在", execution.getProcessInstanceId());
-            removeStartUserIfSkip(userIds, flowElement, Long.valueOf(processInstance.getStartUserId()));
+            removeStartUserIfSkip(userIds, flowElement, processInstance.getStartUserId());
             return userIds;
         });
     }
 
     @DataPermission(enable = false) // 忽略数据权限，避免因为过滤，导致找不到候选人
-    public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
-                                              Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
+    public Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
+                                                String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         // 如果是 CallActivity 子流程，不进行计算候选人
         FlowElement flowElement = BpmnModelUtils.getFlowElementById(bpmnModel, activityId);
         if (flowElement instanceof CallActivity || flowElement instanceof SubProcess) {
@@ -144,7 +145,7 @@ public class BpmTaskCandidateInvoker {
         // 1.1 计算任务的候选人
         Integer strategy = BpmnModelUtils.parseCandidateStrategy(flowElement);
         String param = BpmnModelUtils.parseCandidateParam(flowElement);
-        Set<Long> userIds = getCandidateStrategy(strategy).calculateUsersByActivity(bpmnModel, activityId, param,
+        Set<String> userIds = getCandidateStrategy(strategy).calculateUsersByActivity(bpmnModel, activityId, param,
                 startUserId, processDefinitionId, processVariables);
         // 1.2 移除被禁用的用户
         removeDisableUsers(userIds);
@@ -162,13 +163,25 @@ public class BpmTaskCandidateInvoker {
     }
 
     @VisibleForTesting
-    void removeDisableUsers(Set<Long> assigneeUserIds) {
+    void removeDisableUsers(Set<String> assigneeUserIds) {
         if (CollUtil.isEmpty(assigneeUserIds)) {
             return;
         }
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(assigneeUserIds);
+        Set<Long> numericIds = new HashSet<>();
+        assigneeUserIds.forEach(id -> {
+            if (NumberUtil.isLong(id)) {
+                numericIds.add(Long.valueOf(id));
+            }
+        });
+        if (CollUtil.isEmpty(numericIds)) {
+            return;
+        }
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(numericIds);
         assigneeUserIds.removeIf(id -> {
-            AdminUserRespDTO user = userMap.get(id);
+            if (!NumberUtil.isLong(id)) {
+                return false;
+            }
+            AdminUserRespDTO user = userMap.get(Long.valueOf(id));
             return user == null || CommonStatusEnum.isDisable(user.getStatus());
         });
     }
@@ -183,7 +196,7 @@ public class BpmTaskCandidateInvoker {
      * @param startUserId 发起人
      */
     @VisibleForTesting
-    void removeStartUserIfSkip(Set<Long> assigneeUserIds, FlowElement flowElement, Long startUserId) {
+    void removeStartUserIfSkip(Set<String> assigneeUserIds, FlowElement flowElement, String startUserId) {
         if (CollUtil.size(assigneeUserIds) <= 1) {
             return;
         }

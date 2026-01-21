@@ -3,6 +3,7 @@ package cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.strategy.de
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.BpmTaskCandidateStrategy;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.module.system.api.dept.DeptApi;
 import cn.iocoder.zhgd.module.system.api.dept.dto.DeptRespDTO;
 import cn.iocoder.zhgd.module.system.api.user.AdminUserApi;
@@ -80,8 +81,11 @@ public abstract class AbstractBpmTaskCandidateDeptLeaderStrategy implements BpmT
      *
      * @param startUserId 发起人 Id
      */
-    protected DeptRespDTO getStartUserDept(Long startUserId) {
-        AdminUserRespDTO startUser = adminUserApi.getUser(startUserId);
+    protected DeptRespDTO getStartUserDept(String startUserId) {
+        if (!NumberUtil.isLong(startUserId)) {
+            return null;
+        }
+        AdminUserRespDTO startUser = adminUserApi.getUser(Long.valueOf(startUserId));
         if (startUser.getDeptId() == null) { // 找不到部门
             return null;
         }

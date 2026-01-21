@@ -221,9 +221,7 @@ public class BpmModelServiceImpl implements BpmModelService {
         validateBpmnXml(bpmnBytes, metaInfo.getType());
         // 1.3 校验表单已配
         //BpmFormDO form = validateFormConfig(metaInfo);
-        // 1.4 校验任务分配规则已配置
-        taskCandidateInvoker.validateBpmnConfig(bpmnBytes);
-        // 1.5 获取仿钉钉流程设计器模型数据
+        // 1.4 获取仿钉钉流程设计器模型数据
         String simpleJson = getModelSimpleJson(model.getId());
 
         // 2.1 创建流程定义

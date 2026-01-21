@@ -688,9 +688,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     private List<Long> getTaskCandidateUserList(BpmnModel bpmnModel, String activityId,
                                                 Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
-        Set<Long> userIds = taskCandidateInvoker.calculateUsersByActivity(bpmnModel, activityId,
-                startUserId, processDefinitionId, processVariables);
-        return new ArrayList<>(userIds);
+        String startUserIdStr = startUserId != null ? String.valueOf(startUserId) : null;
+        Set<String> userIds = taskCandidateInvoker.calculateUsersByActivity(bpmnModel, activityId,
+                startUserIdStr, processDefinitionId, processVariables);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(userIds,
+                id -> cn.hutool.core.util.NumberUtil.parseLong(id, null));
     }
 
     @Override

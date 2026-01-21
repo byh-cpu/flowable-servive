@@ -168,7 +168,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 4. 任务表单
         BpmFormDO taskForm = null;
         if (StrUtil.isNotBlank(todoTask.getFormKey())) {
-            taskForm = formService.getForm(NumberUtils.parseLong(todoTask.getFormKey()));
+            taskForm = formService.getForm(NumberUtil.parseLong(todoTask.getFormKey(), null));
         }
 
         return BpmTaskConvert.INSTANCE.buildTodoTask(todoTask, childrenTasks, buttonsSetting, taskForm)
@@ -317,7 +317,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 为什么判断 assignee 非空的情况下？
         // 例如说：在审批人为空时，我们会有“自动审批通过”的策略，此时 userId 为 null，允许通过
         if (StrUtil.isNotBlank(task.getAssignee())
-                && ObjectUtil.notEqual(userId, NumberUtils.parseLong(task.getAssignee()))) {
+                && userId != null
+                && !StrUtil.equals(String.valueOf(userId), task.getAssignee())) {
             throw exception(TASK_OPERATE_FAIL_ASSIGN_NOT_SELF);
         }
         return task;
@@ -521,8 +522,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      * @return 是否
      */
     private boolean isAssignUserTask(Long userId, Task task) {
-        Long assignee = NumberUtil.parseLong(task.getAssignee(), null);
-        return ObjectUtil.equals(userId, assignee);
+        return userId != null && StrUtil.equals(String.valueOf(userId), task.getAssignee());
     }
 
     /**
@@ -533,8 +533,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      * @return 是否
      */
     private boolean isOwnerUserTask(Long userId, Task task) {
-        Long assignee = NumberUtil.parseLong(task.getOwner(), null);
-        return ObjectUtil.equal(userId, assignee);
+        return userId != null && StrUtil.equals(String.valueOf(userId), task.getOwner());
     }
 
     /**
@@ -784,7 +783,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     private void approveDelegateTask(BpmTaskApproveReqVO reqVO, Task task) {
         // 1. 添加审批意见
         AdminUserRespDTO currentUser = adminUserApi.getUser(WebFrameworkUtils.getLoginUserId());
-        AdminUserRespDTO ownerUser = adminUserApi.getUser(NumberUtils.parseLong(task.getOwner())); // 发起委托的用户
+        AdminUserRespDTO ownerUser = adminUserApi.getUser(NumberUtil.parseLong(task.getOwner(), null)); // 发起委托的用户
         Assert.notNull(ownerUser, "委派任务找不到原审批人，需要检查数据");
         taskService.addComment(reqVO.getId(), task.getProcessInstanceId(), BpmCommentTypeEnum.DELEGATE_END.getType(),
                 BpmCommentTypeEnum.DELEGATE_END.formatComment(currentUser.getNickname(), ownerUser.getNickname(), reqVO.getReason()));
@@ -1155,7 +1154,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         List<Task> taskList = taskService.createTaskQuery().processInstanceId(taskEntity.getProcessInstanceId())
                 .taskDefinitionKey(taskEntity.getTaskDefinitionKey()).list();
         List<Long> currentAssigneeList = convertListByFlatMap(taskList, task -> // 需要考虑 owner 的情况，因为向后加签时，它暂时没 assignee 而是 owner
-                Stream.of(NumberUtils.parseLong(task.getAssignee()), NumberUtils.parseLong(task.getOwner())));
+                Stream.of(NumberUtil.parseLong(task.getAssignee(), null), NumberUtil.parseLong(task.getOwner(), null)));
         if (CollUtil.containsAny(currentAssigneeList, reqVO.getUserIds())) {
             List<AdminUserRespDTO> userList = adminUserApi.getUserList(CollUtil.intersection(currentAssigneeList, reqVO.getUserIds()));
             throw exception(TASK_SIGN_CREATE_USER_REPEAT, String.join(",", convertList(userList, AdminUserRespDTO::getNickname)));
@@ -1219,10 +1218,10 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 1.2 校验取消人存在
         AdminUserRespDTO cancelUser = null;
         if (StrUtil.isNotBlank(task.getAssignee())) {
-            cancelUser = adminUserApi.getUser(NumberUtils.parseLong(task.getAssignee()));
+            cancelUser = adminUserApi.getUser(NumberUtil.parseLong(task.getAssignee(), null));
         }
         if (cancelUser == null && StrUtil.isNotBlank(task.getOwner())) {
-            cancelUser = adminUserApi.getUser(NumberUtils.parseLong(task.getOwner()));
+            cancelUser = adminUserApi.getUser(NumberUtil.parseLong(task.getOwner(), null));
         }
         Assert.notNull(cancelUser, "任务中没有所有者和审批人，数据错误");
 
@@ -1466,6 +1465,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                     log.error("[processTaskAssigned][taskId({}) 没有找到流程实例]", task.getId());
                     return;
                 }
+                Long assigneeId = NumberUtil.parseLong(task.getAssignee(), null);
 
                 // 自动去重，通过自动审批的方式
                 BpmProcessDefinitionInfoDO processDefinitionInfo = bpmProcessDefinitionService.getProcessDefinitionInfo(task.getProcessDefinitionId());
@@ -1481,7 +1481,11 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                             .finished();
                     if (BpmAutoApproveTypeEnum.APPROVE_ALL.getType().equals(processDefinitionInfo.getAutoApprovalType())
                             && sameAssigneeQuery.count() > 0) {
-                        getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                        if (assigneeId == null) {
+                            log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过自动去重]", task.getId());
+                            return;
+                        }
+                        getSelf().approveTask(assigneeId, new BpmTaskApproveReqVO().setId(task.getId())
                                 .setReason(BpmAutoApproveTypeEnum.APPROVE_ALL.getName()));
                         return;
                     }
@@ -1495,7 +1499,11 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                                         BpmnModelUtils.getFlowElementById(bpmnModel, task.getTaskDefinitionKey())),
                                 SequenceFlow::getSourceRef);
                         if (sameAssigneeQuery.taskDefinitionKeys(sourceTaskIds).count() > 0) {
-                            getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                            if (assigneeId == null) {
+                                log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过连续自动去重]", task.getId());
+                                return;
+                            }
+                            getSelf().approveTask(assigneeId, new BpmTaskApproveReqVO().setId(task.getId())
                                     .setReason(BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getName()));
                             return;
                         }
@@ -1518,7 +1526,11 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                         && (skipStartUserNodeFlag == null // 目的：一般是“主流程”，发起人节点，自动通过审核
                         || BooleanUtil.isTrue(skipStartUserNodeFlag)) // 目的：一般是“子流程”，发起人节点，按配置自动通过审核
                         && ObjUtil.notEqual(returnTaskFlag, Boolean.TRUE)) {
-                    getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                    if (assigneeId == null) {
+                        log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过自动通过]", task.getId());
+                        return;
+                    }
+                    getSelf().approveTask(assigneeId, new BpmTaskApproveReqVO().setId(task.getId())
                             .setReason(BpmReasonEnum.ASSIGN_START_USER_APPROVE_WHEN_SKIP_START_USER_NODE.getReason()));
                     return;
                 }
@@ -1531,27 +1543,44 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                         // 情况一：自动跳过
                         if (ObjectUtils.equalsAny(assignStartUserHandlerType,
                                 BpmUserTaskAssignStartUserHandlerTypeEnum.SKIP.getType())) {
-                            getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                            if (assigneeId == null) {
+                                log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过自动跳过]", task.getId());
+                                return;
+                            }
+                            getSelf().approveTask(assigneeId, new BpmTaskApproveReqVO().setId(task.getId())
                                     .setReason(BpmReasonEnum.ASSIGN_START_USER_APPROVE_WHEN_SKIP.getReason()));
                             return;
                         }
                         // 情况二：转交给部门负责人审批
                         if (ObjectUtils.equalsAny(assignStartUserHandlerType,
                                 BpmUserTaskAssignStartUserHandlerTypeEnum.TRANSFER_DEPT_LEADER.getType())) {
-                            AdminUserRespDTO startUser = adminUserApi.getUser(Long.valueOf(processInstance.getStartUserId()));
+                            Long startUserId = NumberUtil.parseLong(processInstance.getStartUserId(), null);
+                            if (startUserId == null) {
+                                log.warn("[processTaskAssigned][taskId({}) 发起人非数字，跳过部门负责人转交]", task.getId());
+                                return;
+                            }
+                            AdminUserRespDTO startUser = adminUserApi.getUser(startUserId);
                             Assert.notNull(startUser, "提交人({})信息为空", processInstance.getStartUserId());
                             DeptRespDTO dept = startUser.getDeptId() != null ? deptApi.getDept(startUser.getDeptId()) : null;
                             Assert.notNull(dept, "提交人({})部门({})信息为空", processInstance.getStartUserId(), startUser.getDeptId());
                             // 找不到部门负责人的情况下，自动审批通过
                             // noinspection DataFlowIssue
                             if (dept.getLeaderUserId() == null) {
-                                getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                                if (assigneeId == null) {
+                                    log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过部门负责人自动通过]", task.getId());
+                                    return;
+                                }
+                                getSelf().approveTask(assigneeId, new BpmTaskApproveReqVO().setId(task.getId())
                                         .setReason(BpmReasonEnum.ASSIGN_START_USER_APPROVE_WHEN_DEPT_LEADER_NOT_FOUND.getReason()));
                                 return;
                             }
                             // 找得到部门负责人的情况下，修改负责人
                             if (ObjectUtil.notEqual(dept.getLeaderUserId(), startUser.getId())) {
-                                getSelf().transferTask(Long.valueOf(task.getAssignee()), new BpmTaskTransferReqVO()
+                                if (assigneeId == null) {
+                                    log.warn("[processTaskAssigned][taskId({}) 审批人非数字，跳过部门负责人转交]", task.getId());
+                                    return;
+                                }
+                                getSelf().transferTask(assigneeId, new BpmTaskTransferReqVO()
                                         .setId(task.getId()).setAssigneeUserId(dept.getLeaderUserId())
                                         .setReason(BpmReasonEnum.ASSIGN_START_USER_TRANSFER_DEPT_LEADER.getReason()));
                                 return;
@@ -1562,7 +1591,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 }
                 // 注意：需要基于 instance 设置租户编号，避免 Flowable 内部异步时，丢失租户编号
                 FlowableUtils.execute(processInstance.getTenantId(), () -> {
-                    AdminUserRespDTO startUser = adminUserApi.getUser(Long.valueOf(processInstance.getStartUserId()));
+                    Long startUserId = NumberUtil.parseLong(processInstance.getStartUserId(), null);
+                    AdminUserRespDTO startUser = startUserId != null ? adminUserApi.getUser(startUserId) : null;
                     messageService.sendMessageWhenTaskAssigned(BpmTaskConvert.INSTANCE.convert(processInstance, startUser, task));
                 });
             }
@@ -1608,24 +1638,29 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         }
 
         taskList.forEach(task -> FlowableUtils.execute(task.getTenantId(), () -> {
+            Long assigneeId = NumberUtil.parseLong(task.getAssignee(), null);
+            if (assigneeId == null) {
+                log.warn("[processTaskTimeout][taskId({}) 审批人非数字，跳过超时处理]", task.getId());
+                return;
+            }
             // 情况一：自动提醒
             if (Objects.equals(handlerType, BpmUserTaskTimeoutHandlerTypeEnum.REMINDER.getType())) {
                 messageService.sendMessageWhenTaskTimeout(new BpmMessageSendWhenTaskTimeoutReqDTO()
                         .setProcessInstanceId(processInstanceId).setProcessInstanceName(processInstance.getName())
-                        .setTaskId(task.getId()).setTaskName(task.getName()).setAssigneeUserId(Long.parseLong(task.getAssignee())));
+                        .setTaskId(task.getId()).setTaskName(task.getName()).setAssigneeUserId(assigneeId));
                 return;
             }
 
             // 情况二：自动同意
             if (Objects.equals(handlerType, BpmUserTaskTimeoutHandlerTypeEnum.APPROVE.getType())) {
-                approveTask(Long.parseLong(task.getAssignee()),
+                approveTask(assigneeId,
                         new BpmTaskApproveReqVO().setId(task.getId()).setReason(BpmReasonEnum.TIMEOUT_APPROVE.getReason()));
                 return;
             }
 
             // 情况三：自动拒绝
             if (Objects.equals(handlerType, BpmUserTaskTimeoutHandlerTypeEnum.REJECT.getType())) {
-                rejectTask(Long.parseLong(task.getAssignee()),
+                rejectTask(assigneeId,
                         new BpmTaskRejectReqVO().setId(task.getId()).setReason(BpmReasonEnum.REJECT_TASK.getReason()));
             }
         }));

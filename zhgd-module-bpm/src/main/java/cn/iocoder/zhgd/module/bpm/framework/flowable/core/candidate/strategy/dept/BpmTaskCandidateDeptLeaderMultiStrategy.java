@@ -35,11 +35,12 @@ public class BpmTaskCandidateDeptLeaderMultiStrategy extends AbstractBpmTaskCand
     }
 
     @Override
-    public Set<Long> calculateUsers(String param) {
+    public Set<String> calculateUsers(String param) {
         String[] params = param.split("\\|");
         List<Long> deptIds = StrUtils.splitToLong(params[0], ",");
         int level = Integer.parseInt(params[1]);
-        return super.getMultiLevelDeptLeaderIds(deptIds, level);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet(
+                super.getMultiLevelDeptLeaderIds(deptIds, level), String::valueOf);
     }
 
 }

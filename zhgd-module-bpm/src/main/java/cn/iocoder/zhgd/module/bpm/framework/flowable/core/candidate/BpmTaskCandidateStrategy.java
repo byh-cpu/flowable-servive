@@ -49,7 +49,7 @@ public interface BpmTaskCandidateStrategy {
      * @param param 执行任务
      * @return 用户编号集合
      */
-    default Set<Long> calculateUsers(String param) {
+    default Set<String> calculateUsers(String param) {
         throw new UnsupportedOperationException("该分配方法未实现，请检查！");
     }
 
@@ -59,7 +59,7 @@ public interface BpmTaskCandidateStrategy {
      * @param execution 执行任务
      * @return 用户编号集合
      */
-    default Set<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    default Set<String> calculateUsersByTask(DelegateExecution execution, String param) {
         return calculateUsers(param);
     }
 
@@ -77,8 +77,8 @@ public interface BpmTaskCandidateStrategy {
      * @return 用户编号集合
      */
     @SuppressWarnings("unused")
-    default Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
-                                               Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
+    default Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
+                                                 String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         return calculateUsers(param);
     }
 

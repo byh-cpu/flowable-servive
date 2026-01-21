@@ -2,7 +2,7 @@ package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmTaskPageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmTaskSimpleRespDTO;
@@ -118,8 +118,8 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         }
         resp.setProcessInstanceId(task.getProcessInstanceId());
         resp.setProcessDefinitionId(task.getProcessDefinitionId());
-        resp.setAssigneeUserId(NumberUtils.parseLong(task.getAssignee()));
-        resp.setOwnerUserId(NumberUtils.parseLong(task.getOwner()));
+        resp.setAssigneeUserId(NumberUtil.parseLong(task.getAssignee(), null));
+        resp.setOwnerUserId(NumberUtil.parseLong(task.getOwner(), null));
 
         ProcessDefinition definition = definitionMap.get(task.getProcessDefinitionId());
         if (definition != null) {
@@ -135,13 +135,13 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         ProcessInstance instance = processInstanceMap != null ? processInstanceMap.get(task.getProcessInstanceId()) : null;
         if (instance != null) {
             resp.setProcessInstanceName(instance.getName());
-            resp.setStartUserId(NumberUtils.parseLong(instance.getStartUserId()));
+            resp.setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
         }
         HistoricProcessInstance historicInstance = historicProcessInstanceMap != null
                 ? historicProcessInstanceMap.get(task.getProcessInstanceId()) : null;
         if (historicInstance != null) {
             resp.setProcessInstanceName(historicInstance.getName());
-            resp.setStartUserId(NumberUtils.parseLong(historicInstance.getStartUserId()));
+            resp.setStartUserId(NumberUtil.parseLong(historicInstance.getStartUserId(), null));
         }
         return resp;
     }

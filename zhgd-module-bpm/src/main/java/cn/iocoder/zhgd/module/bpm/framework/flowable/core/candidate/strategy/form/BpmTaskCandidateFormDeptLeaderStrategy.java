@@ -36,21 +36,23 @@ public class BpmTaskCandidateFormDeptLeaderStrategy extends AbstractBpmTaskCandi
     }
 
     @Override
-    public Set<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    public Set<String> calculateUsersByTask(DelegateExecution execution, String param) {
         String[] params = param.split("\\|");
         Object result = execution.getVariable(params[0]);
         int level = Integer.parseInt(params[1]);
-        return super.getMultiLevelDeptLeaderIds(Convert.toList(Long.class, result), level);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet(
+                super.getMultiLevelDeptLeaderIds(Convert.toList(Long.class, result), level), String::valueOf);
     }
 
     @Override
-    public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
-                                              String param, Long startUserId, String processDefinitionId,
-                                              Map<String, Object> processVariables) {
+    public Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
+                                                String param, String startUserId, String processDefinitionId,
+                                                Map<String, Object> processVariables) {
         String[] params = param.split("\\|");
         Object result = processVariables == null ? null : processVariables.get(params[0]);
         int level = Integer.parseInt(params[1]);
-        return super.getMultiLevelDeptLeaderIds(Convert.toList(Long.class, result), level);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet(
+                super.getMultiLevelDeptLeaderIds(Convert.toList(Long.class, result), level), String::valueOf);
     }
 
 }

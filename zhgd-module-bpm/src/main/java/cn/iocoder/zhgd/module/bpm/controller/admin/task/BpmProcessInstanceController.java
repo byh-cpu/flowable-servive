@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.json.JsonUtils;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
 import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.instance.*;
 import cn.iocoder.zhgd.module.bpm.convert.task.BpmProcessInstanceConvert;
@@ -82,7 +82,7 @@ public class BpmProcessInstanceController {
                 convertSet(processDefinitionMap.values(), ProcessDefinition::getCategory));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricProcessInstance::getProcessDefinitionId));
-        Set<Long> userIds = convertSet(pageResult.getList(), processInstance -> NumberUtils.parseLong(processInstance.getStartUserId()));
+        Set<Long> userIds = convertSet(pageResult.getList(), processInstance -> NumberUtil.parseLong(processInstance.getStartUserId(), null));
         userIds.addAll(convertSetByFlatMap(taskMap.values(),
                 tasks -> tasks.stream().map(Task::getAssignee).filter(StrUtil::isNotBlank).map(Long::parseLong)));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
@@ -112,7 +112,7 @@ public class BpmProcessInstanceController {
                 convertSet(processDefinitionMap.values(), ProcessDefinition::getCategory));
         // 发起人信息
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(pageResult.getList(), processInstance -> NumberUtils.parseLong(processInstance.getStartUserId())));
+                convertSet(pageResult.getList(), processInstance -> NumberUtil.parseLong(processInstance.getStartUserId(), null)));
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
@@ -143,7 +143,7 @@ public class BpmProcessInstanceController {
                 processInstance.getProcessDefinitionId());
         BpmProcessDefinitionInfoDO processDefinitionInfo = processDefinitionService.getProcessDefinitionInfo(
                 processInstance.getProcessDefinitionId());
-        AdminUserRespDTO startUser = adminUserApi.getUser(NumberUtils.parseLong(processInstance.getStartUserId()));
+        AdminUserRespDTO startUser = adminUserApi.getUser(NumberUtil.parseLong(processInstance.getStartUserId(), null));
         DeptRespDTO dept = null;
         if (startUser != null && startUser.getDeptId() != null) {
             dept = deptApi.getDept(startUser.getDeptId());

@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.strategy.user;
 
 import cn.iocoder.zhgd.framework.common.util.string.StrUtils;
+import cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.BpmTaskCandidateStrategy;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.enums.BpmTaskCandidateStrategyEnum;
 import cn.iocoder.zhgd.module.system.api.permission.PermissionApi;
@@ -35,9 +36,9 @@ public class BpmTaskCandidateRoleStrategy implements BpmTaskCandidateStrategy {
     }
 
     @Override
-    public Set<Long> calculateUsers(String param) {
+    public Set<String> calculateUsers(String param) {
         Set<Long> roleIds = StrUtils.splitToLongSet(param);
-        return permissionApi.getUserRoleIdListByRoleIds(roleIds);
+        return CollectionUtils.convertSet(permissionApi.getUserRoleIdListByRoleIds(roleIds), String::valueOf);
     }
 
 }

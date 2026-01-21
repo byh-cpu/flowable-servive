@@ -45,7 +45,7 @@ public class BpmTaskCandidateApproveUserSelectStrategy extends AbstractBpmTaskCa
     }
 
     @Override
-    public LinkedHashSet<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    public LinkedHashSet<String> calculateUsersByTask(DelegateExecution execution, String param) {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
         Assert.notNull(processInstance, "流程实例({})不能为空", execution.getProcessInstanceId());
         Map<String, List<Long>> approveUserSelectAssignees = FlowableUtils.getApproveUserSelectAssignees(processInstance);
@@ -56,12 +56,14 @@ public class BpmTaskCandidateApproveUserSelectStrategy extends AbstractBpmTaskCa
         }
         // 获得审批人
         List<Long> assignees = approveUserSelectAssignees.get(execution.getCurrentActivityId());
-        return CollUtil.isNotEmpty(assignees) ? new LinkedHashSet<>(assignees) : Sets.newLinkedHashSet();
+        return CollUtil.isNotEmpty(assignees)
+                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                : Sets.newLinkedHashSet();
     }
 
     @Override
-    public LinkedHashSet<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
-                                                        Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
+    public LinkedHashSet<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
+                                                          String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         if (processVariables == null) {
             return Sets.newLinkedHashSet();
         }
@@ -72,7 +74,9 @@ public class BpmTaskCandidateApproveUserSelectStrategy extends AbstractBpmTaskCa
         }
         // 获得审批人
         List<Long> assignees = approveUserSelectAssignees.get(activityId);
-        return CollUtil.isNotEmpty(assignees) ? new LinkedHashSet<>(assignees) : Sets.newLinkedHashSet();
+        return CollUtil.isNotEmpty(assignees)
+                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                : Sets.newLinkedHashSet();
     }
 
 }

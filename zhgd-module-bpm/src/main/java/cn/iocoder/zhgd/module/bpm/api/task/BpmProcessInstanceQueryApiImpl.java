@@ -2,7 +2,7 @@ package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstancePageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceSimpleRespDTO;
@@ -62,7 +62,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         resp.setEndTime(DateUtils.of(instance.getEndTime()));
         resp.setStatus(FlowableUtils.getProcessInstanceStatus(instance));
         resp.setProcessDefinitionId(instance.getProcessDefinitionId());
-        resp.setStartUserId(NumberUtils.parseLong(instance.getStartUserId()));
+        resp.setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
 
         ProcessDefinition definition = definitionMap.get(instance.getProcessDefinitionId());
         if (definition != null) {

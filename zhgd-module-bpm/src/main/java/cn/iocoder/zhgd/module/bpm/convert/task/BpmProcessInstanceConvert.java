@@ -7,7 +7,7 @@ import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.collection.MapUtils;
 import cn.iocoder.zhgd.framework.common.util.collection.SetUtils;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
 import cn.iocoder.zhgd.module.bpm.controller.admin.definition.vo.model.BpmModelMetaInfoVO;
@@ -74,7 +74,7 @@ public interface BpmProcessInstanceConvert {
             respVO.setTasks(BeanUtils.toBean(taskMap.get(respVO.getId()), BpmProcessInstanceRespVO.Task.class));
             // user
             if (userMap != null) {
-                AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(pageResult.getList().get(i).getStartUserId()));
+                AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(pageResult.getList().get(i).getStartUserId(), null));
                 if (startUser != null) {
                     respVO.setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
                     MapUtils.findAndThen(deptMap, startUser.getDeptId(), dept -> respVO.getStartUser().setDeptName(dept.getName()));
@@ -130,7 +130,7 @@ public interface BpmProcessInstanceConvert {
 
     default BpmMessageSendWhenProcessInstanceApproveReqDTO buildProcessInstanceApproveMessage(ProcessInstance instance) {
         return new BpmMessageSendWhenProcessInstanceApproveReqDTO()
-                .setStartUserId(NumberUtils.parseLong(instance.getStartUserId()))
+                .setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null))
                 .setProcessInstanceId(instance.getId())
                 .setProcessInstanceName(instance.getName());
     }
@@ -140,7 +140,7 @@ public interface BpmProcessInstanceConvert {
             .setProcessInstanceName(instance.getName())
             .setProcessInstanceId(instance.getId())
             .setReason(reason)
-            .setStartUserId(NumberUtils.parseLong(instance.getStartUserId()));
+            .setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
     }
 
     default BpmProcessInstanceBpmnModelViewRespVO buildProcessInstanceBpmnModelView(HistoricProcessInstance processInstance,
@@ -178,7 +178,7 @@ public interface BpmProcessInstanceConvert {
         if (StrUtil.isEmpty(userIdStr)) {
             return null;
         }
-        Long userId = NumberUtils.parseLong(userIdStr);
+        Long userId = NumberUtil.parseLong(userIdStr, null);
         return buildUser(userId, userMap, deptMap);
     }
 
@@ -214,7 +214,7 @@ public interface BpmProcessInstanceConvert {
                                    BpmTaskRespVO todoTask) {
         Set<Long> userIds = new HashSet<>();
         if (processInstance != null) {
-            userIds.add(NumberUtils.parseLong(processInstance.getStartUserId()));
+            userIds.add(NumberUtil.parseLong(processInstance.getStartUserId(), null));
         }
         for (BpmApprovalDetailRespVO.ActivityNode activityNode : activityNodes) {
             CollUtil.addAll(userIds, convertSet(activityNode.getTasks(), BpmApprovalDetailRespVO.ActivityNodeTask::getAssignee));
@@ -236,8 +236,8 @@ public interface BpmProcessInstanceConvert {
                                      List<HistoricTaskInstance> tasks) {
         Set<Long> userIds = SetUtils.asSet(Long.valueOf(processInstance.getStartUserId()));
         tasks.forEach(task -> {
-            CollUtil.addIfAbsent(userIds, NumberUtils.parseLong((task.getAssignee())));
-            CollUtil.addIfAbsent(userIds, NumberUtils.parseLong((task.getOwner())));
+            CollUtil.addIfAbsent(userIds, NumberUtil.parseLong((task.getAssignee()), null));
+            CollUtil.addIfAbsent(userIds, NumberUtil.parseLong((task.getOwner()), null));
         });
         return userIds;
     }
@@ -255,7 +255,7 @@ public interface BpmProcessInstanceConvert {
         // 1.1 流程实例
         BpmProcessInstanceRespVO processInstanceResp = null;
         if (processInstance != null) {
-            AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
+            AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(processInstance.getStartUserId(), null));
             DeptRespDTO dept = startUser != null ? deptMap.get(startUser.getDeptId()) : null;
             processInstanceResp = buildProcessInstance(processInstance, null, null, startUser, dept);
         }

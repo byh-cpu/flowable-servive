@@ -39,10 +39,10 @@ public class BpmTaskCandidatePostStrategy implements BpmTaskCandidateStrategy {
     }
 
     @Override
-    public Set<Long> calculateUsers(String param) {
+    public Set<String> calculateUsers(String param) {
         Set<Long> postIds = StrUtils.splitToLongSet(param);
         List<AdminUserRespDTO> users = adminUserApi.getUserListByPostIds(postIds);
-        return convertSet(users, AdminUserRespDTO::getId);
+        return convertSet(users, user -> String.valueOf(user.getId()));
     }
 
 }

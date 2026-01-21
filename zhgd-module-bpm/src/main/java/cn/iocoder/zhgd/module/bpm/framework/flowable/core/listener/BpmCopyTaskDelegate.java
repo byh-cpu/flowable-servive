@@ -34,13 +34,16 @@ public class BpmCopyTaskDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
         // 1. 获得抄送人
-        Set<Long> userIds = taskCandidateInvoker.calculateUsersByTask(execution);
+        Set<String> userIds = taskCandidateInvoker.calculateUsersByTask(execution);
         if (CollUtil.isEmpty(userIds)) {
             return;
         }
         // 2. 执行抄送
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
-        processInstanceCopyService.createProcessInstanceCopy(userIds, null, execution.getProcessInstanceId(),
+        processInstanceCopyService.createProcessInstanceCopy(
+                cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(
+                        userIds, id -> cn.hutool.core.util.NumberUtil.parseLong(id, null)),
+                null, execution.getProcessInstanceId(),
                 currentFlowElement.getId(), currentFlowElement.getName(), null);
     }
 

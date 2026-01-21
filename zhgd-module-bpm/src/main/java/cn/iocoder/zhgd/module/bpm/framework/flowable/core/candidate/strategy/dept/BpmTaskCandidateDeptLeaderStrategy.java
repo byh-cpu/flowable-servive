@@ -36,10 +36,10 @@ public class BpmTaskCandidateDeptLeaderStrategy implements BpmTaskCandidateStrat
     }
 
     @Override
-    public Set<Long> calculateUsers(String param) {
+    public Set<String> calculateUsers(String param) {
         Set<Long> deptIds = StrUtils.splitToLongSet(param);
         List<DeptRespDTO> depts = deptApi.getDeptList(deptIds);
-        return convertSet(depts, DeptRespDTO::getLeaderUserId);
+        return convertSet(depts, dept -> dept.getLeaderUserId() != null ? String.valueOf(dept.getLeaderUserId()) : null);
     }
 
 }

@@ -36,18 +36,18 @@ public class BpmTaskCandidateExpressionStrategy implements BpmTaskCandidateStrat
     }
 
     @Override
-    public Set<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    public Set<String> calculateUsersByTask(DelegateExecution execution, String param) {
         Object result = FlowableUtils.getExpressionValue(execution, param);
-        return CollectionUtils.toLinkedHashSet(Long.class, result);
+        return CollectionUtils.toLinkedHashSet(String.class, result);
     }
 
     @Override
-    public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
-                                              Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
+    public Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
+                                                String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         Map<String, Object> variables = processVariables == null ? new HashMap<>() : processVariables;
         try {
             Object result = FlowableUtils.getExpressionValue(variables, param);
-            return CollectionUtils.toLinkedHashSet(Long.class, result);
+            return CollectionUtils.toLinkedHashSet(String.class, result);
         } catch (FlowableException ex) {
             // 预测未运行的节点时候，表达式如果包含 execution 或者不存在的流程变量会抛异常，此时忽略该异常！相当于说，不做流程预测！！！
             if (ex.getCause() != null && ex.getCause() instanceof PropertyNotFoundException) {

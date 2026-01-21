@@ -3,7 +3,7 @@ package cn.iocoder.zhgd.module.bpm.controller.admin.task;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.*;
 import cn.iocoder.zhgd.module.bpm.convert.task.BpmTaskConvert;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmFormDO;
@@ -207,7 +207,7 @@ public class BpmTaskController {
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessInstanceId));
         // 获得 User 和 Dept Map
         Set<Long> userIds = convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId()));
-        userIds.addAll(convertSet(pageResult.getList(), task -> NumberUtils.parseLong(task.getAssignee())));
+        userIds.addAll(convertSet(pageResult.getList(), task -> NumberUtil.parseLong(task.getAssignee(), null)));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
@@ -229,13 +229,13 @@ public class BpmTaskController {
 
         // 拼接数据
         Set<Long> userIds = convertSetByFlatMap(taskList, task ->
-                Stream.of(NumberUtils.parseLong(task.getAssignee()), NumberUtils.parseLong(task.getOwner())));
+                Stream.of(NumberUtil.parseLong(task.getAssignee(), null), NumberUtil.parseLong(task.getOwner(), null)));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         // 获得 Form Map
         Map<Long, BpmFormDO> formMap = formService.getFormMap(
-                convertSet(taskList, task -> NumberUtils.parseLong(task.getFormKey())));
+                convertSet(taskList, task -> NumberUtil.parseLong(task.getFormKey(), null)));
         return success(BpmTaskConvert.INSTANCE.buildTaskListByProcessInstanceId(taskList,
                 formMap, userMap, deptMap));
     }
@@ -333,7 +333,7 @@ public class BpmTaskController {
         }
         // 拼接数据
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertSetByFlatMap(taskList,
-                user -> Stream.of(NumberUtils.parseLong(user.getAssignee()), NumberUtils.parseLong(user.getOwner()))));
+                user -> Stream.of(NumberUtil.parseLong(user.getAssignee(), null), NumberUtil.parseLong(user.getOwner(), null))));
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         return success(BpmTaskConvert.INSTANCE.buildTaskListByParentTaskId(taskList, userMap, deptMap));

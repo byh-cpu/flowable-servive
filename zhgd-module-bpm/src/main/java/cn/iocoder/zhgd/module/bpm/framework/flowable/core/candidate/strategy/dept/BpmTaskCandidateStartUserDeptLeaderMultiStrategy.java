@@ -1,7 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.strategy.dept;
 
 import cn.hutool.core.lang.Assert;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.BpmTaskCandidateStrategy;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.enums.BpmTaskCandidateStrategyEnum;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
@@ -43,28 +42,29 @@ public class BpmTaskCandidateStartUserDeptLeaderMultiStrategy extends AbstractBp
     }
 
     @Override
-    public Set<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    public Set<String> calculateUsersByTask(DelegateExecution execution, String param) {
         int level = Integer.parseInt(param); // 参数是部门的层级
         // 获得流程发起人
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
-        Long startUserId = NumberUtils.parseLong(processInstance.getStartUserId());
         // 获取发起人的 multi 部门负责人
-        DeptRespDTO dept = super.getStartUserDept(startUserId);
+        DeptRespDTO dept = super.getStartUserDept(processInstance.getStartUserId());
         if (dept == null) {
             return new HashSet<>();
         }
-        return super.getMultiLevelDeptLeaderIds(toList(dept.getId()), level);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet(
+                super.getMultiLevelDeptLeaderIds(toList(dept.getId()), level), String::valueOf);
     }
 
     @Override
-    public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
-                                              Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
+    public Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId, String param,
+                                                String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         int level = Integer.parseInt(param); // 参数是部门的层级
         DeptRespDTO dept = super.getStartUserDept(startUserId);
         if (dept == null) {
             return new HashSet<>();
         }
-        return super.getMultiLevelDeptLeaderIds(toList(dept.getId()), level);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet(
+                super.getMultiLevelDeptLeaderIds(toList(dept.getId()), level), String::valueOf);
     }
 
 }

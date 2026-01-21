@@ -31,17 +31,17 @@ public class BpmTaskCandidateFormUserStrategy implements BpmTaskCandidateStrateg
     }
 
     @Override
-    public Set<Long> calculateUsersByTask(DelegateExecution execution, String param) {
+    public Set<String> calculateUsersByTask(DelegateExecution execution, String param) {
         Object result = execution.getVariable(param);
-        return CollectionUtils.toLinkedHashSet(Long.class, result);
+        return CollectionUtils.toLinkedHashSet(String.class, result);
     }
 
     @Override
-    public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
-                                              String param, Long startUserId, String processDefinitionId,
-                                              Map<String, Object> processVariables) {
+    public Set<String> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
+                                                String param, String startUserId, String processDefinitionId,
+                                                Map<String, Object> processVariables) {
         Object result = processVariables == null ? null : processVariables.get(param);
-        return CollectionUtils.toLinkedHashSet(Long.class, result);
+        return CollectionUtils.toLinkedHashSet(String.class, result);
     }
 
 }
