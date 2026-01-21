@@ -50,7 +50,6 @@ public class BpmProcessDefinitionCreateReqDTO {
     /**
      * 表单类型
      */
-    @NotNull(message = "表单类型不能为空")
     private Integer formType;
     /**
      * 动态表单编号

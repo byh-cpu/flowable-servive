@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
@@ -41,9 +42,8 @@ public class BpmModelMetaInfoVO {
     @NotNull(message = "流程类型不能为空")
     private Integer type;
 
-    @Schema(description = "表单类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "10")
+    @Schema(description = "表单类型", example = "10")
     @InEnum(BpmModelFormTypeEnum.class)
-    @NotNull(message = "表单类型不能为空")
     private Integer formType;
     @Schema(description = "表单编号", example = "1024")
     private Long formId; // formType 为 NORMAL 使用，必须非空

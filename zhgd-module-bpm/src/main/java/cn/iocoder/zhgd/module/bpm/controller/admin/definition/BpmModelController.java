@@ -71,8 +71,9 @@ public class BpmModelController {
         // 获得 Form 表单
         Set<Long> formIds = convertSet(list, model -> {
             BpmModelMetaInfoVO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
-            return metaInfo != null ? metaInfo.getFormId() : null;
+            return metaInfo != null && metaInfo.getFormId() != null ? metaInfo.getFormId() : null;
         });
+        formIds.remove(null);
         Map<Long, BpmFormDO> formMap = formService.getFormMap(formIds);
         // 获得 Category Map
         Map<String, BpmCategoryDO> categoryMap = categoryService.getCategoryMap(

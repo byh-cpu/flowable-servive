@@ -356,8 +356,10 @@ public class BpmModelServiceImpl implements BpmModelService {
      */
     private BpmFormDO validateFormConfig(BpmModelMetaInfoVO metaInfo) {
         if (metaInfo == null || metaInfo.getFormType() == null) {
-            throw exception(MODEL_DEPLOY_FAIL_FORM_NOT_CONFIG);
+            // 允许不绑定表单
+            return null;
         }
+
         // 校验表单存在
         if (Objects.equals(metaInfo.getFormType(), BpmModelFormTypeEnum.NORMAL.getType())) {
             if (metaInfo.getFormId() == null) {
