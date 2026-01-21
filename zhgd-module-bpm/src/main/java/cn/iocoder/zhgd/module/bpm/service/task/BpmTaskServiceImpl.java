@@ -106,6 +106,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     private BpmMessageService messageService;
     @Resource
     private BpmFormService formService;
+    @Resource
+    private BpmProcessInstanceBizIndexService bizIndexService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -133,6 +135,13 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (ArrayUtil.isNotEmpty(pageVO.getCreateTime())) {
             taskQuery.taskCreatedAfter(DateUtils.of(pageVO.getCreateTime()[0]));
             taskQuery.taskCreatedBefore(DateUtils.of(pageVO.getCreateTime()[1]));
+        }
+        List<String> processInstanceIds = getBizFilteredProcessInstanceIds(pageVO);
+        if (processInstanceIds != null) {
+            if (CollUtil.isEmpty(processInstanceIds)) {
+                return PageResult.empty();
+            }
+            taskQuery.processInstanceIdIn(processInstanceIds);
         }
         long count = taskQuery.count();
         if (count == 0) {
@@ -236,6 +245,13 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (pageVO.getStatus() != null) {
             taskQuery.taskVariableValueEquals(BpmnVariableConstants.TASK_VARIABLE_STATUS, pageVO.getStatus());
         }
+        List<String> processInstanceIds = getBizFilteredProcessInstanceIds(pageVO);
+        if (processInstanceIds != null) {
+            if (CollUtil.isEmpty(processInstanceIds)) {
+                return PageResult.empty();
+            }
+            taskQuery.processInstanceIdIn(processInstanceIds);
+        }
 //        if (ArrayUtil.isNotEmpty(pageVO.getCreateTime())) {
 //            taskQuery.taskCreatedAfter(DateUtils.of(pageVO.getCreateTime()[0]));
 //            taskQuery.taskCreatedBefore(DateUtils.of(pageVO.getCreateTime()[1]));
@@ -270,6 +286,13 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         }
         if (StrUtil.isNotEmpty(pageVO.getCategory())) {
             taskQuery.taskCategory(pageVO.getCategory());
+        }
+        List<String> processInstanceIds = getBizFilteredProcessInstanceIds(pageVO);
+        if (processInstanceIds != null) {
+            if (CollUtil.isEmpty(processInstanceIds)) {
+                return PageResult.empty();
+            }
+            taskQuery.processInstanceIdIn(processInstanceIds);
         }
 //        if (ArrayUtil.isNotEmpty(pageVO.getCreateTime())) {
 //            taskQuery.taskCreatedAfter(DateUtils.of(pageVO.getCreateTime()[0]));
@@ -534,6 +557,13 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      */
     private boolean isOwnerUserTask(Long userId, Task task) {
         return userId != null && StrUtil.equals(String.valueOf(userId), task.getOwner());
+    }
+
+    private List<String> getBizFilteredProcessInstanceIds(BpmTaskPageReqVO pageVO) {
+        if (pageVO.getCompanyId() == null && pageVO.getProjectId() == null) {
+            return null;
+        }
+        return bizIndexService.listProcessInstanceIds(pageVO.getCompanyId(), pageVO.getProjectId());
     }
 
     /**

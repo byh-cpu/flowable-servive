@@ -1,7 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.expression;
 
 import cn.iocoder.zhgd.framework.common.util.collection.SetUtils;
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
@@ -28,10 +27,9 @@ public class BpmTaskAssignStartUserExpression {
      * @param execution 流程执行实体
      * @return 发起人
      */
-    public Set<Long> calculateUsers(ExecutionEntityImpl execution) {
+    public Set<String> calculateUsers(ExecutionEntityImpl execution) {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
-        Long startUserId = NumberUtils.parseLong(processInstance.getStartUserId());
-        return SetUtils.asSet(startUserId);
+        return SetUtils.asSet(processInstance.getStartUserId());
     }
 
 }

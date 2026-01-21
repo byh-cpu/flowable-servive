@@ -18,6 +18,12 @@ public class BpmProcessInstanceCreateReqVO {
     @Schema(description = "变量实例（动态表单）")
     private Map<String, Object> variables;
 
+    @Schema(description = "企业编号", example = "11864")
+    private Long companyId;
+
+    @Schema(description = "项目编号", example = "11198")
+    private Long projectId;
+
     @Schema(description = "发起人自选审批人 Map", example = "{taskKey1: [1, 2]}")
     private Map<String, List<Long>> startUserSelectAssignees;
 

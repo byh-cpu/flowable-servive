@@ -125,6 +125,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Resource
     private BpmProcessIdRedisDAO processIdRedisDAO;
+    @Resource
+    private BpmProcessInstanceBizIndexService bizIndexService;
 
     // ========== Query 查询相关方法 ==========
 
@@ -341,6 +343,14 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         if (ArrayUtil.isNotEmpty(pageReqVO.getEndTime())) {
             processInstanceQuery.finishedAfter(DateUtils.of(pageReqVO.getEndTime()[0]));
             processInstanceQuery.finishedBefore(DateUtils.of(pageReqVO.getEndTime()[1]));
+        }
+        if (pageReqVO.getCompanyId() != null || pageReqVO.getProjectId() != null) {
+            List<String> processInstanceIds = bizIndexService.listProcessInstanceIds(
+                    pageReqVO.getCompanyId(), pageReqVO.getProjectId());
+            if (CollUtil.isEmpty(processInstanceIds)) {
+                return PageResult.empty();
+            }
+            processInstanceQuery.processInstanceIds(new HashSet<>(processInstanceIds));
         }
         // 表单字段查询
         Map<String, Object> formFieldsParams = JsonUtils.parseObject(pageReqVO.getFormFieldsParams(), Map.class);
@@ -765,7 +775,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 .getProcessDefinition(createReqVO.getProcessDefinitionId());
         // 发起流程
         return createProcessInstance0(userId, definition, createReqVO.getVariables(), null,
-                createReqVO.getStartUserSelectAssignees());
+                createReqVO.getStartUserSelectAssignees(), createReqVO.getCompanyId(), createReqVO.getProjectId());
     }
 
     @Override
@@ -778,13 +788,14 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             // 发起流程
             return createProcessInstance0(userId, definition, createReqDTO.getVariables(),
                     createReqDTO.getBusinessKey(),
-                    createReqDTO.getStartUserSelectAssignees());
+                    createReqDTO.getStartUserSelectAssignees(), createReqDTO.getCompanyId(), createReqDTO.getProjectId());
         });
     }
 
     private String createProcessInstance0(Long userId, ProcessDefinition definition,
                                           Map<String, Object> variables, String businessKey,
-                                          Map<String, List<Long>> startUserSelectAssignees) {
+                                          Map<String, List<Long>> startUserSelectAssignees,
+                                          Long companyId, Long projectId) {
         // 1.1 校验流程定义
         if (definition == null) {
             throw exception(PROCESS_DEFINITION_NOT_EXISTS);
@@ -833,6 +844,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
         // 3.3 发起流程实例
         ProcessInstance instance = processInstanceBuilder.start();
+
+        // 4. 记录业务索引
+        Long resolvedCompanyId = companyId != null ? companyId : Convert.toLong(variables.get("companyId"), null);
+        Long resolvedProjectId = projectId != null ? projectId : Convert.toLong(variables.get("projectId"), null);
+        bizIndexService.createIndex(instance.getId(), resolvedCompanyId, resolvedProjectId, String.valueOf(userId));
         return instance.getId();
     }
 

@@ -1,6 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.expression;
 
-import cn.iocoder.zhgd.framework.common.util.number.NumberUtils;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
 import cn.iocoder.zhgd.module.system.api.dept.DeptApi;
 import cn.iocoder.zhgd.module.system.api.dept.dto.DeptRespDTO;
@@ -42,11 +42,14 @@ public class BpmTaskAssignLeaderExpression {
      * @param level 指定级别
      * @return 指定级别的领导
      */
-    public Set<Long> calculateUsers(DelegateExecution execution, int level) {
+    public Set<String> calculateUsers(DelegateExecution execution, int level) {
         Assert.isTrue(level > 0, "level 必须大于 0");
         // 获得发起人
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
-        Long startUserId = NumberUtils.parseLong(processInstance.getStartUserId());
+        Long startUserId = NumberUtil.parseLong(processInstance.getStartUserId(), null);
+        if (startUserId == null) {
+            return emptySet();
+        }
         // 获得对应 leve 的部门
         DeptRespDTO dept = null;
         for (int i = 0; i < level; i++) {
@@ -64,7 +67,7 @@ public class BpmTaskAssignLeaderExpression {
                 dept = parentDept;
             }
         }
-        return dept.getLeaderUserId() != null ? asSet(dept.getLeaderUserId()) : emptySet();
+        return dept.getLeaderUserId() != null ? asSet(String.valueOf(dept.getLeaderUserId())) : emptySet();
     }
 
     private DeptRespDTO getStartUserDept(Long startUserId) {

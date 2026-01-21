@@ -22,6 +22,16 @@ public class BpmProcessInstancePageReqDTO extends PageParam {
     private String processDefinitionKey;
 
     /**
+     * 企业编号
+     */
+    private Long companyId;
+
+    /**
+     * 项目编号
+     */
+    private Long projectId;
+
+    /**
      * 流程实例的状态
      */
     private Integer status;

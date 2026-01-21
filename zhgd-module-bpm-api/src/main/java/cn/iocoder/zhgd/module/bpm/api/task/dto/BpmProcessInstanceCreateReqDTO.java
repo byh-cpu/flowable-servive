@@ -28,6 +28,16 @@ public class BpmProcessInstanceCreateReqDTO {
     private Map<String, Object> variables;
 
     /**
+     * 企业编号
+     */
+    private Long companyId;
+
+    /**
+     * 项目编号
+     */
+    private Long projectId;
+
+    /**
      * 业务的唯一标识
      *
      * 例如说，请假申请的编号。通过它，可以查询到对应的实例
