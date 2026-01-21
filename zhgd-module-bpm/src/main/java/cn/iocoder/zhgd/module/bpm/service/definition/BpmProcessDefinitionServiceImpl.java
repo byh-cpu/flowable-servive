@@ -133,7 +133,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
 
     @Override
     public String createProcessDefinition(Model model, BpmModelMetaInfoVO modelMetaInfo,
-                                          byte[] bpmnBytes, String simpleJson, BpmFormDO form) {
+                                          byte[] bpmnBytes, String simpleJson) {
         // 创建 Deployment 部署
         Deployment deploy = repositoryService.createDeployment()
                 .key(model.getKey()).name(model.getName()).category(model.getCategory())
@@ -160,9 +160,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         BpmProcessDefinitionInfoDO definitionDO = BeanUtils.toBean(modelMetaInfo, BpmProcessDefinitionInfoDO.class)
                 .setModelId(model.getId()).setCategory(model.getCategory()).setProcessDefinitionId(definition.getId())
                 .setModelType(modelMetaInfo.getType()).setSimpleModel(simpleJson);
-        if (form != null) {
-            definitionDO.setFormFields(form.getFields()).setFormConf(form.getConf());
-        }
+
         processDefinitionMapper.insert(definitionDO);
         return definition.getId();
     }

@@ -220,15 +220,14 @@ public class BpmModelServiceImpl implements BpmModelService {
         byte[] bpmnBytes = getModelBpmnXML(model.getId());
         validateBpmnXml(bpmnBytes, metaInfo.getType());
         // 1.3 校验表单已配
-        BpmFormDO form = validateFormConfig(metaInfo);
+        //BpmFormDO form = validateFormConfig(metaInfo);
         // 1.4 校验任务分配规则已配置
         taskCandidateInvoker.validateBpmnConfig(bpmnBytes);
         // 1.5 获取仿钉钉流程设计器模型数据
         String simpleJson = getModelSimpleJson(model.getId());
 
         // 2.1 创建流程定义
-        String definitionId = processDefinitionService.createProcessDefinition(model, metaInfo, bpmnBytes, simpleJson,
-                form);
+        String definitionId = processDefinitionService.createProcessDefinition(model, metaInfo, bpmnBytes, simpleJson);
 
         // 2.2 将老的流程定义进行挂起。也就是说，只有最新部署的流程定义，才可以发起任务。
         updateProcessDefinitionSuspended(model.getDeploymentId());

@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 
@@ -33,6 +34,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class BpmProcessDefinitionInfoDO extends BaseDO {
 
     /**
