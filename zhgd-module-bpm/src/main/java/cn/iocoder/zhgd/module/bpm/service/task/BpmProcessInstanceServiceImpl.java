@@ -1032,13 +1032,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
 
         // 2. 发送对应的消息通知
-        if (Objects.equals(status, BpmProcessInstanceStatusEnum.APPROVE.getStatus())) {
-            messageService.sendMessageWhenProcessInstanceApprove(
-                    BpmProcessInstanceConvert.INSTANCE.buildProcessInstanceApproveMessage(instance));
-        } else if (Objects.equals(status, BpmProcessInstanceStatusEnum.REJECT.getStatus())) {
-            messageService.sendMessageWhenProcessInstanceReject(
-                    BpmProcessInstanceConvert.INSTANCE.buildProcessInstanceRejectMessage(instance, reason));
-        }
+//        if (Objects.equals(status, BpmProcessInstanceStatusEnum.APPROVE.getStatus())) {
+//            messageService.sendMessageWhenProcessInstanceApprove(
+//                    BpmProcessInstanceConvert.INSTANCE.buildProcessInstanceApproveMessage(instance));
+//        } else if (Objects.equals(status, BpmProcessInstanceStatusEnum.REJECT.getStatus())) {
+//            messageService.sendMessageWhenProcessInstanceReject(
+//                    BpmProcessInstanceConvert.INSTANCE.buildProcessInstanceRejectMessage(instance, reason));
+//        }
 
         // 3. 发送流程实例的状态事件
         processInstanceEventPublisher.sendProcessInstanceResultEvent(
