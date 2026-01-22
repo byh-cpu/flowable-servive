@@ -3,12 +3,14 @@ package cn.iocoder.zhgd.module.bpm.controller.admin.definition.vo.process;
 import cn.iocoder.zhgd.module.bpm.controller.admin.definition.vo.model.BpmModelMetaInfoVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(description = "管理后台 - 流程定义 Response VO")
 @Data
+@Accessors(chain = true)
 public class BpmProcessDefinitionRespVO extends BpmModelMetaInfoVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")

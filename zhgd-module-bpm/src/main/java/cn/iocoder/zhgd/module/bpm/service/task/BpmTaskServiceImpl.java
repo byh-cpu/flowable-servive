@@ -303,7 +303,6 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             return PageResult.empty();
         }
         List<HistoricTaskInstance> tasks = taskQuery.listPage(PageUtils.getStart(pageVO), pageVO.getPageSize());
-        // TODO @芋艿：https://t.zsxq.com/MNzqp 【flowable bug】：taskCreatedAfter、taskCreatedBefore 拼接的是 OR
         if (ArrayUtil.isNotEmpty(pageVO.getCreateTime())) {
             tasks.removeIf(task -> task.getCreateTime() == null
                     || task.getCreateTime().before(DateUtils.of(pageVO.getCreateTime()[0]))
