@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 流程任务精简 Response DTO
@@ -30,5 +31,10 @@ public class BpmTaskSimpleRespDTO implements Serializable {
     private String startUserId;
     private String assigneeUserId;
     private String ownerUserId;
+
+    /**
+     * 表单数据
+     */
+    private Map<String, Object> formVariables;
 
 }

@@ -62,6 +62,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         resp.setStatus(FlowableUtils.getProcessInstanceStatus(instance));
         resp.setProcessDefinitionId(instance.getProcessDefinitionId());
         resp.setStartUserId(instance.getStartUserId());
+        resp.setFormVariables(FlowableUtils.getProcessInstanceFormVariable(instance));
 
         ProcessDefinition definition = definitionMap.get(instance.getProcessDefinitionId());
         if (definition != null) {
