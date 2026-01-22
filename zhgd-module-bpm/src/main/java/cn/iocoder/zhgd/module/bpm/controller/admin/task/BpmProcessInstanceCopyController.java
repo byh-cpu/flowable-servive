@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.module.bpm.controller.admin.task;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.collection.MapUtils;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.Objects;
 
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.*;
@@ -56,8 +58,9 @@ public class BpmProcessInstanceCopyController {
     @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
     public CommonResult<PageResult<BpmProcessInstanceCopyRespVO>> getProcessInstanceCopyPage(
             @Valid BpmProcessInstanceCopyPageReqVO pageReqVO) {
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
         PageResult<BpmProcessInstanceCopyDO> pageResult = processInstanceCopyService.getProcessInstanceCopyPage(
-                getLoginUserId(), pageReqVO);
+                loginUserId, pageReqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(new PageResult<>(pageResult.getTotal()));
         }
@@ -66,14 +69,16 @@ public class BpmProcessInstanceCopyController {
         Map<String, HistoricProcessInstance> processInstanceMap = processInstanceService.getHistoricProcessInstanceMap(
                 convertSet(pageResult.getList(), BpmProcessInstanceCopyDO::getProcessInstanceId));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertListByFlatMap(pageResult.getList(),
-                copy -> Stream.of(copy.getStartUserId(), Long.parseLong(copy.getCreator()))));
+                copy -> Stream.of(copy.getStartUserId(), copy.getCreator())
+                        .map(userId -> NumberUtil.parseLong(userId, null))
+                        .filter(Objects::nonNull)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), BpmProcessInstanceCopyDO::getProcessDefinitionId));
         return success(convertPage(pageResult, copy -> {
             BpmProcessInstanceCopyRespVO copyVO = BeanUtils.toBean(copy, BpmProcessInstanceCopyRespVO.class);
-            MapUtils.findAndThen(userMap, Long.valueOf(copy.getCreator()),
+            MapUtils.findAndThen(userMap, NumberUtil.parseLong(copy.getCreator(), null),
                     user -> copyVO.setStartUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
-            MapUtils.findAndThen(userMap, copy.getStartUserId(),
+            MapUtils.findAndThen(userMap, NumberUtil.parseLong(copy.getStartUserId(), null),
                     user -> copyVO.setCreateUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
             MapUtils.findAndThen(processInstanceMap, copyVO.getProcessInstanceId(),
                     processInstance -> {

@@ -41,8 +41,7 @@ public class BpmCopyTaskDelegate implements JavaDelegate {
         // 2. 执行抄送
         FlowElement currentFlowElement = execution.getCurrentFlowElement();
         processInstanceCopyService.createProcessInstanceCopy(
-                cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(
-                        userIds, id -> cn.hutool.core.util.NumberUtil.parseLong(id, null)),
+                new java.util.ArrayList<>(userIds),
                 null, execution.getProcessInstanceId(),
                 currentFlowElement.getId(), currentFlowElement.getName(), null);
     }

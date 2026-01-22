@@ -47,13 +47,13 @@ public class BpmTaskCandidateStartUserSelectStrategy extends AbstractBpmTaskCand
     public LinkedHashSet<String> calculateUsersByTask(DelegateExecution execution, String param) {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
         Assert.notNull(processInstance, "流程实例({})不能为空", execution.getProcessInstanceId());
-        Map<String, List<Long>> startUserSelectAssignees = FlowableUtils.getStartUserSelectAssignees(processInstance);
+        Map<String, List<String>> startUserSelectAssignees = FlowableUtils.getStartUserSelectAssignees(processInstance);
         Assert.notNull(startUserSelectAssignees, "流程实例({}) 的发起人自选审批人不能为空",
                 execution.getProcessInstanceId());
         // 获得审批人
-        List<Long> assignees = startUserSelectAssignees.get(execution.getCurrentActivityId());
+        List<String> assignees = startUserSelectAssignees.get(execution.getCurrentActivityId());
         return CollUtil.isNotEmpty(assignees)
-                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                ? new LinkedHashSet<>(assignees)
                 : Sets.newLinkedHashSet();
     }
 
@@ -63,14 +63,14 @@ public class BpmTaskCandidateStartUserSelectStrategy extends AbstractBpmTaskCand
         if (processVariables == null) {
             return Sets.newLinkedHashSet();
         }
-        Map<String, List<Long>> startUserSelectAssignees = FlowableUtils.getStartUserSelectAssignees(processVariables);
+        Map<String, List<String>> startUserSelectAssignees = FlowableUtils.getStartUserSelectAssignees(processVariables);
         if (startUserSelectAssignees == null) {
             return Sets.newLinkedHashSet();
         }
         // 获得审批人
-        List<Long> assignees = startUserSelectAssignees.get(activityId);
+        List<String> assignees = startUserSelectAssignees.get(activityId);
         return CollUtil.isNotEmpty(assignees)
-                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                ? new LinkedHashSet<>(assignees)
                 : Sets.newLinkedHashSet();
     }
 

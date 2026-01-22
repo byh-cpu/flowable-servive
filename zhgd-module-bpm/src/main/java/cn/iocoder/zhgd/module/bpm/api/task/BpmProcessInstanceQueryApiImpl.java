@@ -2,7 +2,6 @@ package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
-import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstancePageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceSimpleRespDTO;
@@ -36,7 +35,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
     private BpmProcessDefinitionService processDefinitionService;
 
     @Override
-    public PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(Long userId,
+    public PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(String userId,
                                                                               BpmProcessInstancePageReqDTO pageReqDTO) {
         BpmProcessInstancePageReqVO pageReqVO = BeanUtils.toBean(pageReqDTO, BpmProcessInstancePageReqVO.class);
         PageResult<HistoricProcessInstance> pageResult = processInstanceService.getProcessInstancePage(userId, pageReqVO);
@@ -62,7 +61,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         resp.setEndTime(DateUtils.of(instance.getEndTime()));
         resp.setStatus(FlowableUtils.getProcessInstanceStatus(instance));
         resp.setProcessDefinitionId(instance.getProcessDefinitionId());
-        resp.setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
+        resp.setStartUserId(instance.getStartUserId());
 
         ProcessDefinition definition = definitionMap.get(instance.getProcessDefinitionId());
         if (definition != null) {

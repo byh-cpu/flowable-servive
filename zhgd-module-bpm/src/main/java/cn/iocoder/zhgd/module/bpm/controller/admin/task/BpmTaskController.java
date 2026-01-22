@@ -159,7 +159,8 @@ public class BpmTaskController {
     @Operation(summary = "获取 Todo 待办任务分页")
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskTodoPage(@Valid BpmTaskPageReqVO pageVO) {
-        PageResult<Task> pageResult = taskService.getTaskTodoPage(getLoginUserId(), pageVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        PageResult<Task> pageResult = taskService.getTaskTodoPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
         }
@@ -168,7 +169,7 @@ public class BpmTaskController {
         Map<String, ProcessInstance> processInstanceMap = processInstanceService.getProcessInstanceMap(
                 convertSet(pageResult.getList(), Task::getProcessInstanceId));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
+                convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
         return success(BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap));
@@ -178,7 +179,8 @@ public class BpmTaskController {
     @Operation(summary = "获取 Done 已办任务分页")
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskDonePage(@Valid BpmTaskPageReqVO pageVO) {
-        PageResult<HistoricTaskInstance> pageResult = taskService.getTaskDonePage(getLoginUserId(), pageVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        PageResult<HistoricTaskInstance> pageResult = taskService.getTaskDonePage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
         }
@@ -187,7 +189,7 @@ public class BpmTaskController {
         Map<String, HistoricProcessInstance> processInstanceMap = processInstanceService.getHistoricProcessInstanceMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessInstanceId));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
+                convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
         return success(BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap));
@@ -197,7 +199,8 @@ public class BpmTaskController {
     @Operation(summary = "获取全部任务的分页", description = "用于【流程任务】菜单")
     @PreAuthorize("@ss.hasPermission('bpm:task:mananger-query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskManagerPage(@Valid BpmTaskPageReqVO pageVO) {
-        PageResult<HistoricTaskInstance> pageResult = taskService.getTaskPage(getLoginUserId(), pageVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        PageResult<HistoricTaskInstance> pageResult = taskService.getTaskPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
         }
@@ -206,7 +209,8 @@ public class BpmTaskController {
         Map<String, HistoricProcessInstance> processInstanceMap = processInstanceService.getHistoricProcessInstanceMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessInstanceId));
         // 获得 User 和 Dept Map
-        Set<Long> userIds = convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId()));
+        Set<Long> userIds = convertSet(processInstanceMap.values(),
+                instance -> NumberUtil.parseLong(instance.getStartUserId(), null));
         userIds.addAll(convertSet(pageResult.getList(), task -> NumberUtil.parseLong(task.getAssignee(), null)));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
@@ -244,7 +248,8 @@ public class BpmTaskController {
     @Operation(summary = "通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> approveTask(@Valid @RequestBody BpmTaskApproveReqVO reqVO) {
-        taskService.approveTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.approveTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -252,7 +257,8 @@ public class BpmTaskController {
     @Operation(summary = "不通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> rejectTask(@Valid @RequestBody BpmTaskRejectReqVO reqVO) {
-        taskService.rejectTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.rejectTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -270,7 +276,8 @@ public class BpmTaskController {
     @Operation(summary = "退回任务", description = "用于【流程详情】的【退回】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> returnTask(@Valid @RequestBody BpmTaskReturnReqVO reqVO) {
-        taskService.returnTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.returnTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -278,7 +285,8 @@ public class BpmTaskController {
     @Operation(summary = "委派任务", description = "用于【流程详情】的【委派】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> delegateTask(@Valid @RequestBody BpmTaskDelegateReqVO reqVO) {
-        taskService.delegateTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.delegateTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -286,7 +294,8 @@ public class BpmTaskController {
     @Operation(summary = "转派任务", description = "用于【流程详情】的【转派】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> transferTask(@Valid @RequestBody BpmTaskTransferReqVO reqVO) {
-        taskService.transferTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.transferTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -294,7 +303,8 @@ public class BpmTaskController {
     @Operation(summary = "加签", description = "before 前加签，after 后加签")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> createSignTask(@Valid @RequestBody BpmTaskSignCreateReqVO reqVO) {
-        taskService.createSignTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.createSignTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -302,7 +312,8 @@ public class BpmTaskController {
     @Operation(summary = "减签")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> deleteSignTask(@Valid @RequestBody BpmTaskSignDeleteReqVO reqVO) {
-        taskService.deleteSignTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.deleteSignTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -310,7 +321,8 @@ public class BpmTaskController {
     @Operation(summary = "抄送任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> copyTask(@Valid @RequestBody BpmTaskCopyReqVO reqVO) {
-        taskService.copyTask(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.copyTask(loginUserId, reqVO);
         return success(true);
     }
 
@@ -318,7 +330,8 @@ public class BpmTaskController {
     @Operation(summary = "撤回任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> withdrawTask(@RequestParam("taskId") String taskId) {
-        taskService.withdrawTask(getLoginUserId(), taskId);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        taskService.withdrawTask(loginUserId, taskId);
         return success(true);
     }
 

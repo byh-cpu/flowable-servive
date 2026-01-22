@@ -25,6 +25,6 @@ public class BpmProcessInstanceCreateReqVO {
     private Long projectId;
 
     @Schema(description = "发起人自选审批人 Map", example = "{taskKey1: [1, 2]}")
-    private Map<String, List<Long>> startUserSelectAssignees;
+    private Map<String, List<String>> startUserSelectAssignees;
 
 }

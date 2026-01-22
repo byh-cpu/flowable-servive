@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BpmOALeaveMapper extends BaseMapperX<BpmOALeaveDO> {
 
-    default PageResult<BpmOALeaveDO> selectPage(Long userId, BpmOALeavePageReqVO reqVO) {
+    default PageResult<BpmOALeaveDO> selectPage(String userId, BpmOALeavePageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<BpmOALeaveDO>()
                 .eqIfPresent(BpmOALeaveDO::getUserId, userId)
                 .eqIfPresent(BpmOALeaveDO::getStatus, reqVO.getStatus())

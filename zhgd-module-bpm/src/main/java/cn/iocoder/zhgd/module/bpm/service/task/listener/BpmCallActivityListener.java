@@ -1,5 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.service.task.listener;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
@@ -53,7 +54,7 @@ public class BpmCallActivityListener implements ExecutionListener {
         // 1. 当发起人来源为主流程发起人时，并兜底 startUserSetting 为空时
         if (startUserSetting == null
                 || startUserSetting.getType().equals(BpmChildProcessStartUserTypeEnum.MAIN_PROCESS_START_USER.getType())) {
-            FlowableUtils.setAuthenticatedUserId(Long.parseLong(processInstance.getStartUserId()));
+            FlowableUtils.setAuthenticatedUserId(processInstance.getStartUserId());
             return;
         }
 
@@ -64,37 +65,37 @@ public class BpmCallActivityListener implements ExecutionListener {
             if (StrUtil.isEmpty(formFieldValue)) {
                 // 2.1.1 来自主流程发起人
                 if (startUserSetting.getEmptyType().equals(BpmChildProcessStartUserEmptyTypeEnum.MAIN_PROCESS_START_USER.getType())) {
-                    FlowableUtils.setAuthenticatedUserId(Long.parseLong(processInstance.getStartUserId()));
+                    FlowableUtils.setAuthenticatedUserId(processInstance.getStartUserId());
                     return;
                 }
                 // 2.1.2 来自子流程管理员
                 if (startUserSetting.getEmptyType().equals(BpmChildProcessStartUserEmptyTypeEnum.CHILD_PROCESS_ADMIN.getType())) {
                     BpmProcessDefinitionInfoDO processDefinition = processDefinitionService.getProcessDefinitionInfo(execution.getProcessDefinitionId());
-                    List<Long> managerUserIds = processDefinition.getManagerUserIds();
-                    FlowableUtils.setAuthenticatedUserId(managerUserIds.get(0));
+                    List<String> managerUserIds = processDefinition.getManagerUserIds();
+                    FlowableUtils.setAuthenticatedUserId(CollUtil.getFirst(managerUserIds));
                     return;
                 }
                 // 2.1.3 来自主流程管理员
                 if (startUserSetting.getEmptyType().equals(BpmChildProcessStartUserEmptyTypeEnum.MAIN_PROCESS_ADMIN.getType())) {
                     BpmProcessDefinitionInfoDO processDefinition = processDefinitionService.getProcessDefinitionInfo(processInstance.getProcessDefinitionId());
-                    List<Long> managerUserIds = processDefinition.getManagerUserIds();
-                    FlowableUtils.setAuthenticatedUserId(managerUserIds.get(0));
+                    List<String> managerUserIds = processDefinition.getManagerUserIds();
+                    FlowableUtils.setAuthenticatedUserId(CollUtil.getFirst(managerUserIds));
                     return;
                 }
             }
-            // 2.2 使用表单值，并兜底字符串转 Long 失败时使用主流程发起人
+            // 2.2 使用表单值，并兜底异常情况
             try {
-                FlowableUtils.setAuthenticatedUserId(Long.parseLong(formFieldValue));
-            } catch (NumberFormatException ex) {
-                try {
-                    List<Long> formFieldValues = JsonUtils.parseArray(formFieldValue, Long.class);
+                List<String> formFieldValues = JsonUtils.parseArray(formFieldValue, String.class);
+                if (CollUtil.isNotEmpty(formFieldValues)) {
                     FlowableUtils.setAuthenticatedUserId(formFieldValues.get(0));
-                } catch (Exception e) {
-                    log.error("[notify][监听器：{}，子流程监听器设置流程的发起人字符串转 Long 失败，字符串：{}]",
-                            DELEGATE_EXPRESSION, formFieldValue);
-                    FlowableUtils.setAuthenticatedUserId(Long.parseLong(processInstance.getStartUserId()));
+                    return;
                 }
+            } catch (Exception ex) {
+                log.debug("[notify][监听器：{}，子流程监听器表单值解析失败，value：{}]",
+                        DELEGATE_EXPRESSION, formFieldValue);
             }
+            FlowableUtils.setAuthenticatedUserId(StrUtil.isNotEmpty(formFieldValue)
+                    ? formFieldValue : processInstance.getStartUserId());
         }
     }
 

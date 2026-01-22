@@ -38,7 +38,7 @@ public class BpmOALeaveDO extends BaseDO {
      *
      * 关联 AdminUserDO 的 id 属性
      */
-    private Long userId;
+    private String userId;
     /**
      * 请假类型
      */

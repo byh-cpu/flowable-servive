@@ -121,7 +121,7 @@ public class BpmModelServiceImpl implements BpmModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class) // 因为进行多个操作，所以开启事务
-    public void updateModel(Long userId, BpmModelSaveReqVO updateReqVO) {
+    public void updateModel(String userId, BpmModelSaveReqVO updateReqVO) {
         // 1. 校验流程模型存在
         Model model = validateModelManager(updateReqVO.getId(), userId);
 
@@ -160,7 +160,7 @@ public class BpmModelServiceImpl implements BpmModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateModelSortBatch(Long userId, List<String> ids) {
+    public void updateModelSortBatch(String userId, List<String> ids) {
         // 1.1 校验流程模型存在
         List<Model> models = repositoryService.createModelQuery()
                 .modelTenantId(FlowableUtils.getTenantId()).list();
@@ -201,7 +201,7 @@ public class BpmModelServiceImpl implements BpmModelService {
      * @param userId 用户编号
      * @return 流程模型
      */
-    private Model validateModelManager(String id, Long userId) {
+    private Model validateModelManager(String id, String userId) {
         Model model = validateModelExists(id);
         BpmModelMetaInfoVO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
         if (metaInfo == null || !CollUtil.contains(metaInfo.getManagerUserIds(), userId)) {
@@ -212,7 +212,7 @@ public class BpmModelServiceImpl implements BpmModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class) // 因为进行多个操作，所以开启事务
-    public void deployModel(Long userId, String id) {
+    public void deployModel(String userId, String id) {
         // 1.1 校验流程模型存在
         Model model = validateModelManager(id, userId);
         BpmModelMetaInfoVO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
@@ -266,7 +266,7 @@ public class BpmModelServiceImpl implements BpmModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteModel(Long userId, String id) {
+    public void deleteModel(String userId, String id) {
         // 校验流程模型存在
         Model model = validateModelManager(id, userId);
 
@@ -277,7 +277,7 @@ public class BpmModelServiceImpl implements BpmModelService {
     }
 
     @Override
-    public void cleanModel(Long userId, String id) {
+    public void cleanModel(String userId, String id) {
         // 1. 校验流程模型存在
         Model model = validateModelManager(id, userId);
 
@@ -305,7 +305,7 @@ public class BpmModelServiceImpl implements BpmModelService {
     }
 
     @Override
-    public void updateModelState(Long userId, String id, Integer state) {
+    public void updateModelState(String userId, String id, Integer state) {
         // 1.1 校验流程模型存在
         Model model = validateModelManager(id, userId);
         // 1.2 校验流程定义存在
@@ -333,7 +333,7 @@ public class BpmModelServiceImpl implements BpmModelService {
     }
 
     @Override
-    public void updateSimpleModel(Long userId, BpmSimpleModelUpdateReqVO reqVO) {
+    public void updateSimpleModel(String userId, BpmSimpleModelUpdateReqVO reqVO) {
         // 1. 校验流程模型存在
         Model model = validateModelManager(reqVO.getId(), userId);
 

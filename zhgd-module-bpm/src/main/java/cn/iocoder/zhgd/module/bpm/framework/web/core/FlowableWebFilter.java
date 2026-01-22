@@ -24,7 +24,7 @@ public class FlowableWebFilter extends OncePerRequestFilter {
             // 设置工作流的用户
             Long userId = SecurityFrameworkUtils.getLoginUserId();
             if (userId != null) {
-                FlowableUtils.setAuthenticatedUserId(userId);
+                FlowableUtils.setAuthenticatedUserId(String.valueOf(userId));
             }
             // 过滤
             chain.doFilter(request, response);

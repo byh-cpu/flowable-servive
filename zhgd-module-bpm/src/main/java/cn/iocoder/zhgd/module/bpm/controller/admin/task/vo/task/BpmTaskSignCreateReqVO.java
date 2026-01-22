@@ -16,7 +16,7 @@ public class BpmTaskSignCreateReqVO {
 
     @Schema(description = "加签的用户编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "888")
     @NotEmpty(message = "加签用户不能为空")
-    private Set<Long> userIds;
+    private Set<String> userIds;
 
     @Schema(description = "加签类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "before")
     @NotEmpty(message = "加签类型不能为空")

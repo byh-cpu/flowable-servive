@@ -16,7 +16,7 @@ public class BpmTaskCopyReqVO {
 
     @Schema(description = "抄送的用户编号数组", requiredMode = Schema.RequiredMode.REQUIRED, example = "[1,2]")
     @NotEmpty(message = "抄送用户不能为空")
-    private Collection<Long> copyUserIds;
+    private Collection<String> copyUserIds;
 
     @Schema(description = "抄送意见", example = "帮忙看看！")
     private String reason;

@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.module.bpm.controller.admin.definition;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.module.bpm.controller.admin.definition.vo.model.*;
 import cn.iocoder.zhgd.module.bpm.controller.admin.definition.vo.model.*;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -88,7 +90,11 @@ public class BpmModelController {
         // 获得 User Map、Dept Map
         Set<Long> userIds = convertSetByFlatMap(list, model -> {
             BpmModelMetaInfoVO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
-            return metaInfo != null ? metaInfo.getStartUserIds().stream() : Stream.empty();
+            return metaInfo != null
+                    ? metaInfo.getStartUserIds().stream()
+                        .map(userId -> NumberUtil.parseLong(userId, null))
+                        .filter(Objects::nonNull)
+                    : Stream.empty();
         });
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Set<Long> deptIds = convertSetByFlatMap(list, model -> {
@@ -125,7 +131,8 @@ public class BpmModelController {
     @Operation(summary = "修改模型")
     @PreAuthorize("@ss.hasPermission('bpm:model:update')")
     public CommonResult<Boolean> updateModel(@Valid @RequestBody BpmModelSaveReqVO modelVO) {
-        modelService.updateModel(getLoginUserId(), modelVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.updateModel(loginUserId, modelVO);
         return success(true);
     }
 
@@ -133,7 +140,8 @@ public class BpmModelController {
     @Operation(summary = "批量修改模型排序")
     @Parameter(name = "ids", description = "编号数组", required = true, example = "1,2,3")
     public CommonResult<Boolean> updateModelSortBatch(@RequestParam("ids") List<String> ids) {
-        modelService.updateModelSortBatch(getLoginUserId(), ids);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.updateModelSortBatch(loginUserId, ids);
         return success(true);
     }
 
@@ -142,7 +150,8 @@ public class BpmModelController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('bpm:model:deploy')")
     public CommonResult<Boolean> deployModel(@RequestParam("id") String id) {
-        modelService.deployModel(getLoginUserId(), id);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.deployModel(loginUserId, id);
         return success(true);
     }
 
@@ -150,7 +159,8 @@ public class BpmModelController {
     @Operation(summary = "修改模型的状态", description = "实际更新的部署的流程定义的状态")
     @PreAuthorize("@ss.hasPermission('bpm:model:update')")
     public CommonResult<Boolean> updateModelState(@Valid @RequestBody BpmModelUpdateStateReqVO reqVO) {
-        modelService.updateModelState(getLoginUserId(), reqVO.getId(), reqVO.getState());
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.updateModelState(loginUserId, reqVO.getId(), reqVO.getState());
         return success(true);
     }
 
@@ -168,7 +178,8 @@ public class BpmModelController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('bpm:model:delete')")
     public CommonResult<Boolean> deleteModel(@RequestParam("id") String id) {
-        modelService.deleteModel(getLoginUserId(), id);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.deleteModel(loginUserId, id);
         return success(true);
     }
 
@@ -177,7 +188,8 @@ public class BpmModelController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('bpm:model:clean')")
     public CommonResult<Boolean> cleanModel(@RequestParam("id") String id) {
-        modelService.cleanModel(getLoginUserId(), id);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.cleanModel(loginUserId, id);
         return success(true);
     }
 
@@ -195,7 +207,8 @@ public class BpmModelController {
     @Operation(summary = "保存仿钉钉流程设计模型")
     @PreAuthorize("@ss.hasPermission('bpm:model:update')")
     public CommonResult<Boolean> updateSimpleModel(@Valid @RequestBody BpmSimpleModelUpdateReqVO reqVO) {
-        modelService.updateSimpleModel(getLoginUserId(), reqVO);
+        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        modelService.updateSimpleModel(loginUserId, reqVO);
         return success(Boolean.TRUE);
     }
 

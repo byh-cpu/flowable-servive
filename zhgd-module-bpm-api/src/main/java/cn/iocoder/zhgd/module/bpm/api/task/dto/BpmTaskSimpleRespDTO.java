@@ -26,8 +26,8 @@ public class BpmTaskSimpleRespDTO {
     private String processDefinitionKey;
     private String category;
 
-    private Long startUserId;
-    private Long assigneeUserId;
-    private Long ownerUserId;
+    private String startUserId;
+    private String assigneeUserId;
+    private String ownerUserId;
 
 }

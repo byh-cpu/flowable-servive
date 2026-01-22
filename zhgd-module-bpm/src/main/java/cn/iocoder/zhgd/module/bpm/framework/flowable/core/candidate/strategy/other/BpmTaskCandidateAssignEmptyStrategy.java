@@ -64,8 +64,7 @@ public class BpmTaskCandidateAssignEmptyStrategy implements BpmTaskCandidateStra
         if (Objects.equals(assignEmptyHandlerType, BpmUserTaskAssignEmptyHandlerTypeEnum.ASSIGN_ADMIN.getType())) {
             BpmProcessDefinitionInfoDO processDefinition = processDefinitionService.getProcessDefinitionInfo(processDefinitionId);
             Assert.notNull(processDefinition, "流程定义({})不存在", processDefinitionId);
-            return new HashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(
-                    processDefinition.getManagerUserIds(), String::valueOf));
+            return new HashSet<>(processDefinition.getManagerUserIds());
         }
 
         // 都不满足，还是返回空

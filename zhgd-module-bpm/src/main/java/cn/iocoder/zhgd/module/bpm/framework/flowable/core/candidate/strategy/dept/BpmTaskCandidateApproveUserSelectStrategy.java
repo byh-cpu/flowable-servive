@@ -48,16 +48,16 @@ public class BpmTaskCandidateApproveUserSelectStrategy extends AbstractBpmTaskCa
     public LinkedHashSet<String> calculateUsersByTask(DelegateExecution execution, String param) {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(execution.getProcessInstanceId());
         Assert.notNull(processInstance, "流程实例({})不能为空", execution.getProcessInstanceId());
-        Map<String, List<Long>> approveUserSelectAssignees = FlowableUtils.getApproveUserSelectAssignees(processInstance);
+        Map<String, List<String>> approveUserSelectAssignees = FlowableUtils.getApproveUserSelectAssignees(processInstance);
         Assert.notNull(approveUserSelectAssignees, "流程实例({}) 的下一个执行节点审批人不能为空",
                 execution.getProcessInstanceId());
         if (approveUserSelectAssignees == null) {
             return Sets.newLinkedHashSet();
         }
         // 获得审批人
-        List<Long> assignees = approveUserSelectAssignees.get(execution.getCurrentActivityId());
+        List<String> assignees = approveUserSelectAssignees.get(execution.getCurrentActivityId());
         return CollUtil.isNotEmpty(assignees)
-                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                ? new LinkedHashSet<>(assignees)
                 : Sets.newLinkedHashSet();
     }
 
@@ -68,14 +68,14 @@ public class BpmTaskCandidateApproveUserSelectStrategy extends AbstractBpmTaskCa
             return Sets.newLinkedHashSet();
         }
         // 流程预测时会使用，允许审批人为空，如果为空前端会弹出提示选择下一个节点审批人，避免流程无法进行，审批时会真正校验节点是否配置审批人
-        Map<String, List<Long>> approveUserSelectAssignees = FlowableUtils.getApproveUserSelectAssignees(processVariables);
+        Map<String, List<String>> approveUserSelectAssignees = FlowableUtils.getApproveUserSelectAssignees(processVariables);
         if (approveUserSelectAssignees == null) {
             return Sets.newLinkedHashSet();
         }
         // 获得审批人
-        List<Long> assignees = approveUserSelectAssignees.get(activityId);
+        List<String> assignees = approveUserSelectAssignees.get(activityId);
         return CollUtil.isNotEmpty(assignees)
-                ? new LinkedHashSet<>(cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(assignees, String::valueOf))
+                ? new LinkedHashSet<>(assignees)
                 : Sets.newLinkedHashSet();
     }
 

@@ -23,7 +23,7 @@ public interface BpmOALeaveService {
      * @param createReqVO 创建信息
      * @return 编号
      */
-    Long createLeave(Long userId, @Valid BpmOALeaveCreateReqVO createReqVO);
+    Long createLeave(String userId, @Valid BpmOALeaveCreateReqVO createReqVO);
 
     /**
      * 更新请假申请的状态
@@ -48,6 +48,6 @@ public interface BpmOALeaveService {
      * @param pageReqVO 分页查询
      * @return 请假申请分页
      */
-    PageResult<BpmOALeaveDO> getLeavePage(Long userId, BpmOALeavePageReqVO pageReqVO);
+    PageResult<BpmOALeaveDO> getLeavePage(String userId, BpmOALeavePageReqVO pageReqVO);
 
 }

@@ -43,15 +43,15 @@ public class FlowableUtils {
 
     // ========== User 相关的工具方法 ==========
 
-    public static void setAuthenticatedUserId(Long userId) {
-        Authentication.setAuthenticatedUserId(String.valueOf(userId));
+    public static void setAuthenticatedUserId(String userId) {
+        Authentication.setAuthenticatedUserId(userId);
     }
 
     public static void clearAuthenticatedUserId() {
         Authentication.setAuthenticatedUserId(null);
     }
 
-    public static <V> V executeAuthenticatedUserId(Long userId, Callable<V> callable) {
+    public static <V> V executeAuthenticatedUserId(String userId, Callable<V> callable) {
         setAuthenticatedUserId(userId);
         try {
             return callable.call();
@@ -181,7 +181,7 @@ public class FlowableUtils {
      * @param processInstance 流程实例
      * @return 发起用户选择的审批人 Map
      */
-    public static Map<String, List<Long>> getStartUserSelectAssignees(ProcessInstance processInstance) {
+    public static Map<String, List<String>> getStartUserSelectAssignees(ProcessInstance processInstance) {
         return processInstance != null ? getStartUserSelectAssignees(processInstance.getProcessVariables()) : null;
     }
 
@@ -192,11 +192,11 @@ public class FlowableUtils {
      * @return 发起用户选择的审批人 Map
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, List<Long>> getStartUserSelectAssignees(Map<String, Object> processVariables) {
+    public static Map<String, List<String>> getStartUserSelectAssignees(Map<String, Object> processVariables) {
         if (processVariables == null) {
             return new HashMap<>();
         }
-        return (Map<String, List<Long>>) processVariables.get(
+        return (Map<String, List<String>>) processVariables.get(
                 BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_START_USER_SELECT_ASSIGNEES);
     }
 
@@ -206,7 +206,7 @@ public class FlowableUtils {
      * @param processInstance 流程实例
      * @return 审批用户选择的下一个节点的审批人Map
      */
-    public static Map<String, List<Long>> getApproveUserSelectAssignees(ProcessInstance processInstance) {
+    public static Map<String, List<String>> getApproveUserSelectAssignees(ProcessInstance processInstance) {
         return processInstance != null ? getApproveUserSelectAssignees(processInstance.getProcessVariables()) : null;
     }
 
@@ -217,11 +217,11 @@ public class FlowableUtils {
      * @return 审批用户选择的下一个节点的审批人Map Map
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, List<Long>> getApproveUserSelectAssignees(Map<String, Object> processVariables) {
+    public static Map<String, List<String>> getApproveUserSelectAssignees(Map<String, Object> processVariables) {
         if (processVariables == null) {
             return new HashMap<>();
         }
-        return (Map<String, List<Long>>) processVariables.get(
+        return (Map<String, List<String>>) processVariables.get(
                 BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_APPROVE_USER_SELECT_ASSIGNEES);
     }
 

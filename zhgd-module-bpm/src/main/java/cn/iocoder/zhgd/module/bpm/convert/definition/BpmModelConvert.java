@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.module.bpm.convert.definition;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
 import cn.iocoder.zhgd.framework.common.util.json.JsonUtils;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
@@ -54,7 +55,10 @@ public interface BpmModelConvert {
             Deployment deployment = model.getDeploymentId() != null ? deploymentMap.get(model.getDeploymentId()) : null;
             ProcessDefinition processDefinition = model.getDeploymentId() != null ?
                     processDefinitionMap.get(model.getDeploymentId()) : null;
-            List<AdminUserRespDTO> startUsers = metaInfo != null ? convertList(metaInfo.getStartUserIds(), userMap::get) : null;
+            List<AdminUserRespDTO> startUsers = metaInfo != null
+                    ? convertList(metaInfo.getStartUserIds(),
+                    userId -> userMap.get(NumberUtil.parseLong(userId, null)))
+                    : null;
             List<DeptRespDTO> startDepts = metaInfo != null ? convertList(metaInfo.getStartDeptIds(), deptMap::get) : null;
             return buildModel0(model, metaInfo, form, category, deployment, processDefinition, startUsers, startDepts);
         });

@@ -49,7 +49,7 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     private BpmProcessDefinitionService processDefinitionService;
 
     @Override
-    public void createProcessInstanceCopy(Collection<Long> userIds, String reason, String taskId) {
+    public void createProcessInstanceCopy(Collection<String> userIds, String reason, String taskId) {
         Task task = taskService.getTask(taskId);
         if (ObjectUtil.isNull(task)) {
             throw exception(ErrorCodeConstants.TASK_NOT_EXISTS);
@@ -60,7 +60,7 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     }
 
     @Override
-    public void createProcessInstanceCopy(Collection<Long> userIds, String reason, String processInstanceId,
+    public void createProcessInstanceCopy(Collection<String> userIds, String reason, String processInstanceId,
                                           String activityId, String activityName, String taskId) {
         // 1.1 校验流程实例存在
         ProcessInstance processInstance = processInstanceService.getProcessInstance(processInstanceId);
@@ -76,7 +76,7 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
 
         // 2. 创建抄送流程
         List<BpmProcessInstanceCopyDO> copyList = convertList(userIds, userId -> new BpmProcessInstanceCopyDO()
-                .setUserId(userId).setReason(reason).setStartUserId(Long.valueOf(processInstance.getStartUserId()))
+                .setUserId(userId).setReason(reason).setStartUserId(processInstance.getStartUserId())
                 .setProcessInstanceId(processInstanceId).setProcessInstanceName(processInstance.getName())
                 .setCategory(processDefinition.getCategory()).setTaskId(taskId)
                 .setActivityId(activityId).setActivityName(activityName)
@@ -85,7 +85,7 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     }
 
     @Override
-    public PageResult<BpmProcessInstanceCopyDO> getProcessInstanceCopyPage(Long userId,
+    public PageResult<BpmProcessInstanceCopyDO> getProcessInstanceCopyPage(String userId,
                                                                            BpmProcessInstanceCopyPageReqVO pageReqVO) {
         return processInstanceCopyMapper.selectPage(userId, pageReqVO);
     }

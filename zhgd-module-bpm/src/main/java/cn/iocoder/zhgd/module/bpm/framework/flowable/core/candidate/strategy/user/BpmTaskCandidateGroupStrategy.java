@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
-import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet;
 
 /**
  * 用户组 {@link BpmTaskCandidateStrategy} 实现类
@@ -41,8 +40,7 @@ public class BpmTaskCandidateGroupStrategy implements BpmTaskCandidateStrategy {
     public Set<String> calculateUsers(String param) {
         Set<Long> groupIds = StrUtils.splitToLongSet(param);
         List<BpmUserGroupDO> groups = userGroupService.getUserGroupList(groupIds);
-        Set<Long> userIds = convertSetByFlatMap(groups, BpmUserGroupDO::getUserIds, Collection::stream);
-        return convertSet(userIds, String::valueOf);
+        return convertSetByFlatMap(groups, BpmUserGroupDO::getUserIds, Collection::stream);
     }
 
 }

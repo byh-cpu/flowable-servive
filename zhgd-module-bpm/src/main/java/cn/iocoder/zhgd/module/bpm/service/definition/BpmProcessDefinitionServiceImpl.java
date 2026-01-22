@@ -2,6 +2,7 @@ package cn.iocoder.zhgd.module.bpm.service.definition;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.framework.common.util.object.PageUtils;
@@ -89,19 +90,22 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     }
 
     @Override
-    public boolean canUserStartProcessDefinition(BpmProcessDefinitionInfoDO processDefinition, Long userId) {
+    public boolean canUserStartProcessDefinition(BpmProcessDefinitionInfoDO processDefinition, String userId) {
         if (processDefinition == null) {
             return false;
         }
-
         // 校验用户是否在允许发起的用户列表中
         if (CollUtil.isNotEmpty(processDefinition.getStartUserIds())) {
-            return processDefinition.getStartUserIds().contains(userId);
+            return StrUtil.isNotEmpty(userId) && processDefinition.getStartUserIds().contains(userId);
         }
 
         // 校验用户是否在允许发起的部门列表中
         if (CollUtil.isNotEmpty(processDefinition.getStartDeptIds())) {
-            AdminUserRespDTO user = adminUserApi.getUser(userId);
+            Long userIdLong = NumberUtil.parseLong(userId, null);
+            if (userIdLong == null) {
+                return false;
+            }
+            AdminUserRespDTO user = adminUserApi.getUser(userIdLong);
             return user != null
                     && user.getDeptId() != null
                     && processDefinition.getStartDeptIds().contains(user.getDeptId());

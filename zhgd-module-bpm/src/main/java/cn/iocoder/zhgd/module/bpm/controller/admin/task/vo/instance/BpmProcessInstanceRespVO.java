@@ -76,7 +76,7 @@ public class BpmProcessInstanceRespVO {
 
         @Schema(description = "任务分配人编号", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "2048")
         @JsonIgnore // 不返回，只是方便后续读取，赋值给 assigneeUser
-        private Long assignee;
+        private String assignee;
 
         @Schema(description = "任务分配人", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "2048")
         private UserSimpleBaseVO assigneeUser;

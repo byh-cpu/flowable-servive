@@ -171,9 +171,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     }
 
     @Override
-    public BpmApprovalDetailRespVO getApprovalDetail(Long loginUserId, BpmApprovalDetailReqVO reqVO) {
+    public BpmApprovalDetailRespVO getApprovalDetail(String loginUserId, BpmApprovalDetailReqVO reqVO) {
         // 1.1 从 reqVO 中，读取公共变量
-        Long startUserId = loginUserId; // 流程发起人
+        String startUserId = loginUserId; // 流程发起人
         HistoricProcessInstance historicProcessInstance = null; // 流程实例
         Integer processInstanceStatus = BpmProcessInstanceStatusEnum.NOT_START.getStatus(); // 流程状态
         Map<String, Object> processVariables = new HashMap<>(); // 流程变量
@@ -183,7 +183,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             if (historicProcessInstance == null) {
                 throw exception(ErrorCodeConstants.PROCESS_INSTANCE_NOT_EXISTS);
             }
-            startUserId = Long.valueOf(historicProcessInstance.getStartUserId());
+            startUserId = historicProcessInstance.getStartUserId();
             processInstanceStatus = FlowableUtils.getProcessInstanceStatus(historicProcessInstance);
             // 合并 DB 和前端传递的流量变量，以前端的为主
             if (CollUtil.isNotEmpty(historicProcessInstance.getProcessVariables())) {
@@ -251,7 +251,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     }
 
     @Override
-    public List<ActivityNode> getNextApprovalNodes(Long loginUserId, BpmApprovalDetailReqVO reqVO) {
+    public List<ActivityNode> getNextApprovalNodes(String loginUserId, BpmApprovalDetailReqVO reqVO) {
         // 1.1 校验任务存在，且是当前用户的
         Task task = taskService.validateTask(loginUserId, reqVO.getTaskId());
         // 1.2 校验流程实例存在
@@ -296,13 +296,17 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
 
         // 4. 拼接基础信息
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSetByFlatMap(nextActivityNodes, ActivityNode::getCandidateUserIds, Collection::stream));
+        Set<Long> userIds = convertSetByFlatMap(nextActivityNodes, ActivityNode::getCandidateUserIds,
+                candidateUserIds -> candidateUserIds.stream()
+                        .map(candidateUserId -> NumberUtil.parseLong(candidateUserId, null))
+                        .filter(Objects::nonNull));
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         nextActivityNodes.forEach(node -> node.setCandidateUsers(convertList(node.getCandidateUserIds(), userId -> {
-            AdminUserRespDTO user = userMap.get(userId);
+            Long userIdLong = NumberUtil.parseLong(userId, null);
+            AdminUserRespDTO user = userIdLong != null ? userMap.get(userIdLong) : null;
             if (user != null) {
-                return BpmProcessInstanceConvert.INSTANCE.buildUser(userId, userMap, deptMap);
+                return BpmProcessInstanceConvert.INSTANCE.buildUser(userIdLong, userMap, deptMap);
             }
             return null;
         })));
@@ -311,17 +315,17 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Override
     @SuppressWarnings("unchecked")
-    public PageResult<HistoricProcessInstance> getProcessInstancePage(Long userId,
+    public PageResult<HistoricProcessInstance> getProcessInstancePage(String userId,
                                                                       BpmProcessInstancePageReqVO pageReqVO) {
         // 1. 构建查询条件
         HistoricProcessInstanceQuery processInstanceQuery = historyService.createHistoricProcessInstanceQuery()
                 .includeProcessVariables()
                 .processInstanceTenantId(FlowableUtils.getTenantId())
                 .orderByProcessInstanceStartTime().desc();
-        if (userId != null) { // 【我的流程】菜单时，需要传递该字段
-            processInstanceQuery.startedBy(String.valueOf(userId));
-        } else if (pageReqVO.getStartUserId() != null) { // 【管理流程】菜单时，才会传递该字段
-            processInstanceQuery.startedBy(String.valueOf(pageReqVO.getStartUserId()));
+        if (StrUtil.isNotEmpty(userId)) { // 【我的流程】菜单时，需要传递该字段
+            processInstanceQuery.startedBy(userId);
+        } else if (StrUtil.isNotEmpty(pageReqVO.getStartUserId())) { // 【管理流程】菜单时，才会传递该字段
+            processInstanceQuery.startedBy(pageReqVO.getStartUserId());
         }
         if (StrUtil.isNotEmpty(pageReqVO.getName())) {
             processInstanceQuery.processInstanceNameLike("%" + pageReqVO.getName() + "%");
@@ -410,7 +414,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     /**
      * 获得【已结束】的活动节点们
      */
-    private List<ActivityNode> getEndActivityNodeList(Long startUserId, BpmnModel bpmnModel,
+    private List<ActivityNode> getEndActivityNodeList(String startUserId, BpmnModel bpmnModel,
                                                       BpmProcessDefinitionInfoDO processDefinitionInfo,
                                                       HistoricProcessInstance historicProcessInstance, Integer processInstanceStatus,
                                                       List<HistoricActivityInstance> activities, List<HistoricTaskInstance> tasks) {
@@ -505,7 +509,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     /**
      * 获得【进行中】的活动节点们
      */
-    private List<ActivityNode> getRunApproveNodeList(Long startUserId,
+    private List<ActivityNode> getRunApproveNodeList(String startUserId,
                                                      BpmnModel bpmnModel,
                                                      ProcessDefinition processDefinition,
                                                      Map<String, Object> processVariables,
@@ -553,7 +557,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             }
             // 处理每个任务的 candidateUsers 属性：如果是依次审批，需要预测它的后续审批人。因为 Task 是审批完一个，创建一个新的 Task
             if (BpmnModelUtils.isSequentialUserTask(flowNode)) {
-                List<Long> candidateUserIds = getTaskCandidateUserList(bpmnModel, flowNode.getId(),
+                List<String> candidateUserIds = getTaskCandidateUserList(bpmnModel, flowNode.getId(),
                         startUserId, processDefinition.getId(), processVariables);
                 // 截取当前审批人位置后面的候选人，不包含当前审批人
                 ActivityNodeTask approvalTaskInfo = CollUtil.getFirst(activityNode.getTasks());
@@ -573,7 +577,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     /**
      * 获得【预测（未来）】的活动节点们
      */
-    private List<ActivityNode> getSimulateApproveNodeList(Long startUserId, BpmnModel bpmnModel,
+    private List<ActivityNode> getSimulateApproveNodeList(String startUserId, BpmnModel bpmnModel,
                                                           BpmProcessDefinitionInfoDO processDefinitionInfo,
                                                           Map<String, Object> processVariables,
                                                           List<HistoricActivityInstance> activities,
@@ -600,7 +604,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         throw new IllegalArgumentException("未知设计器类型：" + processDefinitionInfo.getModelType());
     }
 
-    private ActivityNode buildNotRunApproveNodeForSimple(Long startUserId, BpmnModel bpmnModel,
+    private ActivityNode buildNotRunApproveNodeForSimple(String startUserId, BpmnModel bpmnModel,
                                                          BpmProcessDefinitionInfoDO processDefinitionInfo, Map<String, Object> processVariables,
                                                          BpmSimpleModelNodeVO node, Set<String> runActivityIds,
                                                          Set<String> needSimulateTaskDefKeysByReturn) {
@@ -624,7 +628,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 BpmSimpleModelNodeTypeEnum.START_USER_NODE.getType(),
                 BpmSimpleModelNodeTypeEnum.APPROVE_NODE.getType(),
                 BpmSimpleModelNodeTypeEnum.TRANSACTOR_NODE.getType())) {
-            List<Long> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
+            List<String> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
                     startUserId, processDefinitionInfo.getProcessDefinitionId(), processVariables);
             activityNode.setCandidateUserIds(candidateUserIds);
             return activityNode;
@@ -638,7 +642,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 3. 抄送节点
         if (CollUtil.isEmpty(runActivityIds) && // 流程发起时：需要展示抄送节点，用于选择抄送人
                 BpmSimpleModelNodeTypeEnum.COPY_NODE.getType().equals(node.getType())) {
-            List<Long> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
+            List<String> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
                     startUserId, processDefinitionInfo.getProcessDefinitionId(), processVariables);
             activityNode.setCandidateUserIds(candidateUserIds);
             return activityNode;
@@ -651,7 +655,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         return null;
     }
 
-    private ActivityNode buildNotRunApproveNodeForBpmn(Long startUserId, BpmnModel bpmnModel, List<FlowElement> flowElements,
+    private ActivityNode buildNotRunApproveNodeForBpmn(String startUserId, BpmnModel bpmnModel, List<FlowElement> flowElements,
                                                        BpmProcessDefinitionInfoDO processDefinitionInfo,
                                                        Map<String, Object> processVariables,
                                                        FlowElement node, Set<String> runActivityIds,
@@ -681,7 +685,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
         // 2. 审批节点
         if (node instanceof UserTask) {
-            List<Long> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
+            List<String> candidateUserIds = getTaskCandidateUserList(bpmnModel, node.getId(),
                     startUserId, processDefinitionInfo.getProcessDefinitionId(), processVariables);
             return activityNode.setName(node.getName()).setNodeType(BpmSimpleModelNodeTypeEnum.APPROVE_NODE.getType())
                     .setCandidateStrategy(BpmnModelUtils.parseCandidateStrategy(node))
@@ -696,13 +700,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         return null;
     }
 
-    private List<Long> getTaskCandidateUserList(BpmnModel bpmnModel, String activityId,
-                                                Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
-        String startUserIdStr = startUserId != null ? String.valueOf(startUserId) : null;
+    private List<String> getTaskCandidateUserList(BpmnModel bpmnModel, String activityId,
+                                                  String startUserId, String processDefinitionId, Map<String, Object> processVariables) {
         Set<String> userIds = taskCandidateInvoker.calculateUsersByActivity(bpmnModel, activityId,
-                startUserIdStr, processDefinitionId, processVariables);
-        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(userIds,
-                id -> cn.hutool.core.util.NumberUtil.parseLong(id, null));
+                startUserId, processDefinitionId, processVariables);
+        return cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertList(userIds, id -> id);
     }
 
     @Override
@@ -769,7 +771,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     @DataPermission(enable = false) // 关闭数据权限，避免查询不到用户数据。相关案例：https://gitee.com/zhijiantianya/zhgd-cloud/issues/ID1UYA
-    public String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqVO createReqVO) {
+    public String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqVO createReqVO) {
         // 获得流程定义
         ProcessDefinition definition = processDefinitionService
                 .getProcessDefinition(createReqVO.getProcessDefinitionId());
@@ -780,7 +782,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Override
     @DataPermission(enable = false) // 关闭数据权限，避免查询不到用户数据。相关案例：https://gitee.com/zhijiantianya/zhgd-cloud/issues/ID1UYA
-    public String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqDTO createReqDTO) {
+    public String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqDTO createReqDTO) {
         return FlowableUtils.executeAuthenticatedUserId(userId, () -> {
             // 获得流程定义
             ProcessDefinition definition = processDefinitionService
@@ -792,9 +794,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         });
     }
 
-    private String createProcessInstance0(Long userId, ProcessDefinition definition,
+    private String createProcessInstance0(String userId, ProcessDefinition definition,
                                           Map<String, Object> variables, String businessKey,
-                                          Map<String, List<Long>> startUserSelectAssignees,
+                                          Map<String, List<String>> startUserSelectAssignees,
                                           Long companyId, Long projectId) {
         // 1.1 校验流程定义
         if (definition == null) {
@@ -848,12 +850,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 4. 记录业务索引
         Long resolvedCompanyId = companyId != null ? companyId : Convert.toLong(variables.get("companyId"), null);
         Long resolvedProjectId = projectId != null ? projectId : Convert.toLong(variables.get("projectId"), null);
-        bizIndexService.createIndex(instance.getId(), resolvedCompanyId, resolvedProjectId, String.valueOf(userId));
+        bizIndexService.createIndex(instance.getId(), resolvedCompanyId, resolvedProjectId, userId);
         return instance.getId();
     }
 
-    private void validateStartUserSelectAssignees(Long userId, ProcessDefinition definition,
-                                                  Map<String, List<Long>> startUserSelectAssignees,
+    private void validateStartUserSelectAssignees(String userId, ProcessDefinition definition,
+                                                  Map<String, List<String>> startUserSelectAssignees,
                                                   Map<String, Object> variables) {
         // 1. 获取预测的节点信息
         BpmApprovalDetailRespVO detailRespVO = getApprovalDetail(userId, new BpmApprovalDetailReqVO()
@@ -869,20 +871,23 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 ObjectUtil.notEqual(BpmTaskCandidateStrategyEnum.START_USER_SELECT.getStrategy(), task.getCandidateStrategy()));
         // 2.2 流程发起时要先获取当前流程的预测走向节点，发起时只校验预测的节点发起人自选审批人的审批人和抄送人是否都配置了
         activityNodes.forEach(task -> {
-            List<Long> assignees = startUserSelectAssignees != null ? startUserSelectAssignees.get(task.getId()) : null;
+            List<String> assignees = startUserSelectAssignees != null ? startUserSelectAssignees.get(task.getId()) : null;
             if (CollUtil.isEmpty(assignees)) {
                 throw exception(PROCESS_INSTANCE_START_USER_SELECT_ASSIGNEES_NOT_CONFIG, task.getName());
             }
-            Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(assignees);
+            Set<Long> assigneeIds = convertSet(assignees, assignee -> NumberUtil.parseLong(assignee, null));
+            assigneeIds.remove(null);
+            Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(assigneeIds);
             assignees.forEach(assignee -> {
-                if (userMap.get(assignee) == null) {
+                Long assigneeId = NumberUtil.parseLong(assignee, null);
+                if (assigneeId != null && userMap.get(assigneeId) == null) {
                     throw exception(PROCESS_INSTANCE_START_USER_SELECT_ASSIGNEES_NOT_EXISTS, task.getName(), assignee);
                 }
             });
         });
     }
 
-    private String generateProcessInstanceName(Long userId,
+    private String generateProcessInstanceName(String userId,
                                                ProcessDefinition definition,
                                                BpmProcessDefinitionInfoDO definitionInfo,
                                                Map<String, Object> variables) {
@@ -893,9 +898,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         if (titleSetting == null || !BooleanUtil.isTrue(titleSetting.getEnable())) {
             return definition.getName();
         }
-        AdminUserRespDTO user = adminUserApi.getUser(userId);
+        Long userIdLong = NumberUtil.parseLong(userId, null);
+        AdminUserRespDTO user = userIdLong != null ? adminUserApi.getUser(userIdLong) : null;
         Map<String, Object> cloneVariables = new HashMap<>(variables);
-        cloneVariables.put(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_START_USER_ID, user.getNickname());
+        cloneVariables.put(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_START_USER_ID,
+                user != null ? user.getNickname() : userId);
         cloneVariables.put(BpmnVariableConstants.PROCESS_START_TIME, DateUtil.now());
         cloneVariables.put(BpmnVariableConstants.PROCESS_DEFINITION_NAME, definition.getName().trim());
         return StrUtil.format(definitionInfo.getTitleSetting().getTitle(), cloneVariables);
@@ -903,14 +910,14 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Override
     @DataPermission(enable = false) // 关闭数据权限，避免查询不到用户数据。相关案例：https://gitee.com/zhijiantianya/zhgd-cloud/issues/ID1UYA
-    public void cancelProcessInstanceByStartUser(Long userId, @Valid BpmProcessInstanceCancelReqVO cancelReqVO) {
+    public void cancelProcessInstanceByStartUser(String userId, @Valid BpmProcessInstanceCancelReqVO cancelReqVO) {
         // 1.1 校验流程实例存在
         ProcessInstance instance = getProcessInstance(cancelReqVO.getId());
         if (instance == null) {
             throw exception(PROCESS_INSTANCE_CANCEL_FAIL_NOT_EXISTS);
         }
         // 1.2 只能取消自己的
-        if (!Objects.equals(instance.getStartUserId(), String.valueOf(userId))) {
+        if (!Objects.equals(instance.getStartUserId(), userId)) {
             throw exception(PROCESS_INSTANCE_CANCEL_FAIL_NOT_SELF);
         }
         // 1.3 校验允许撤销审批中的申请
@@ -933,7 +940,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Override
     @DataPermission(enable = false) // 关闭数据权限，避免查询不到用户数据。相关案例：https://gitee.com/zhijiantianya/zhgd-cloud/issues/ID1UYA
-    public void cancelProcessInstanceByAdmin(Long userId, BpmProcessInstanceCancelReqVO cancelReqVO) {
+    public void cancelProcessInstanceByAdmin(String userId, BpmProcessInstanceCancelReqVO cancelReqVO) {
         // 1.1 校验流程实例存在
         ProcessInstance instance = getProcessInstance(cancelReqVO.getId());
         if (instance == null) {
@@ -941,9 +948,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
 
         // 2. 取消流程
-        AdminUserRespDTO user = adminUserApi.getUser(userId);
+        Long userIdLong = NumberUtil.parseLong(userId, null);
+        AdminUserRespDTO user = userIdLong != null ? adminUserApi.getUser(userIdLong) : null;
+        String userName = user != null ? user.getNickname() : userId;
         updateProcessInstanceCancel(cancelReqVO.getId(),
-                BpmReasonEnum.CANCEL_PROCESS_INSTANCE_BY_ADMIN.format(user.getNickname(), cancelReqVO.getReason()));
+                BpmReasonEnum.CANCEL_PROCESS_INSTANCE_BY_ADMIN.format(userName, cancelReqVO.getReason()));
     }
 
     private void updateProcessInstanceCancel(String id, String reason) {
@@ -1064,7 +1073,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
             @Override
             public void afterCommit() {
-                String name = generateProcessInstanceName(Long.valueOf(instance.getStartUserId()),
+                String name = generateProcessInstanceName(instance.getStartUserId(),
                         processDefinition, processDefinitionInfo, instance.getProcessVariables());
                 if (ObjUtil.notEqual(instance.getName(), name)) {
                     runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), name);

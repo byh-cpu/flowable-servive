@@ -32,7 +32,7 @@ public interface BpmTaskService {
      * @param pageReqVO 分页请求
      * @return 流程任务分页
      */
-    PageResult<Task> getTaskTodoPage(Long userId, BpmTaskPageReqVO pageReqVO);
+    PageResult<Task> getTaskTodoPage(String userId, BpmTaskPageReqVO pageReqVO);
 
     /**
      * 获得用户（待办）的任务：
@@ -44,7 +44,7 @@ public interface BpmTaskService {
      * @param processInstanceId 流程实例编号
      * @return 待办任务
      */
-    BpmTaskRespVO getTodoTask(Long userId, String taskId, String processInstanceId);
+    BpmTaskRespVO getTodoTask(String userId, String taskId, String processInstanceId);
 
     /**
      * 获得已办的流程任务分页
@@ -53,7 +53,7 @@ public interface BpmTaskService {
      * @param pageReqVO 分页请求
      * @return 流程任务分页
      */
-    PageResult<HistoricTaskInstance> getTaskDonePage(Long userId, BpmTaskPageReqVO pageReqVO);
+    PageResult<HistoricTaskInstance> getTaskDonePage(String userId, BpmTaskPageReqVO pageReqVO);
 
     /**
      * 获得全部的流程任务分页
@@ -62,7 +62,7 @@ public interface BpmTaskService {
      * @param pageReqVO 分页请求
      * @return 流程任务分页
      */
-    PageResult<HistoricTaskInstance> getTaskPage(Long userId, BpmTaskPageReqVO pageReqVO);
+    PageResult<HistoricTaskInstance> getTaskPage(String userId, BpmTaskPageReqVO pageReqVO);
 
     /**
      * 获得流程任务 Map
@@ -98,7 +98,7 @@ public interface BpmTaskService {
      * @param userId 用户 id
      * @param taskId task id
      */
-    Task validateTask(Long userId, String taskId);
+    Task validateTask(String userId, String taskId);
 
     /**
      * 获取任务
@@ -192,7 +192,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  通过请求
      */
-    void approveTask(Long userId, @Valid BpmTaskApproveReqVO reqVO);
+    void approveTask(String userId, @Valid BpmTaskApproveReqVO reqVO);
 
     /**
      * 不通过任务
@@ -200,7 +200,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  不通过请求
      */
-    void rejectTask(Long userId, @Valid BpmTaskRejectReqVO reqVO);
+    void rejectTask(String userId, @Valid BpmTaskRejectReqVO reqVO);
 
     /**
      * 将流程任务分配给指定用户
@@ -208,7 +208,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  分配请求
      */
-    void transferTask(Long userId, BpmTaskTransferReqVO reqVO);
+    void transferTask(String userId, BpmTaskTransferReqVO reqVO);
 
     /**
      * 将指定流程实例的、进行中的流程任务，移动到结束节点
@@ -224,7 +224,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  退回的任务key和当前所在的任务ID
      */
-    void returnTask(Long userId, BpmTaskReturnReqVO reqVO);
+    void returnTask(String userId, BpmTaskReturnReqVO reqVO);
 
     /**
      * 将指定任务委派给其他人处理，等接收人处理后再回到原审批人手中审批
@@ -232,7 +232,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  被委派人和被委派的任务编号理由参数
      */
-    void delegateTask(Long userId, BpmTaskDelegateReqVO reqVO);
+    void delegateTask(String userId, BpmTaskDelegateReqVO reqVO);
 
     /**
      * 任务加签
@@ -240,7 +240,7 @@ public interface BpmTaskService {
      * @param userId 被加签的用户和任务 ID，加签类型
      * @param reqVO  当前用户 ID
      */
-    void createSignTask(Long userId, BpmTaskSignCreateReqVO reqVO);
+    void createSignTask(String userId, BpmTaskSignCreateReqVO reqVO);
 
     /**
      * 任务减签
@@ -248,7 +248,7 @@ public interface BpmTaskService {
      * @param userId 当前用户ID
      * @param reqVO  被减签的任务 ID，理由
      */
-    void deleteSignTask(Long userId, BpmTaskSignDeleteReqVO reqVO);
+    void deleteSignTask(String userId, BpmTaskSignDeleteReqVO reqVO);
 
     /**
      * 抄送任务
@@ -256,7 +256,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param reqVO  通过请求
      */
-    void copyTask(Long userId, @Valid BpmTaskCopyReqVO reqVO);
+    void copyTask(String userId, @Valid BpmTaskCopyReqVO reqVO);
 
     /**
      * 撤回任务
@@ -264,7 +264,7 @@ public interface BpmTaskService {
      * @param userId 用户编号
      * @param taskId 任务编号
      */
-    void withdrawTask(Long userId, String taskId);
+    void withdrawTask(String userId, String taskId);
 
     // ========== Event 事件相关方法 ==========
 

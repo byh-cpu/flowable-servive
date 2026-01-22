@@ -23,7 +23,7 @@ public class BpmProcessInstanceApiImpl implements BpmProcessInstanceApi {
     private BpmProcessInstanceService processInstanceService;
 
     @Override
-    public String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO) {
+    public String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO) {
         return processInstanceService.createProcessInstance(userId, reqDTO);
     }
 

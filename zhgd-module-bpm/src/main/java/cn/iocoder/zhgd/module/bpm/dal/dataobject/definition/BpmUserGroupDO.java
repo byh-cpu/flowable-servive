@@ -50,6 +50,6 @@ public class BpmUserGroupDO extends BaseDO {
      * 成员用户编号数组
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private Set<Long> userIds;
+    private Set<String> userIds;
 
 }

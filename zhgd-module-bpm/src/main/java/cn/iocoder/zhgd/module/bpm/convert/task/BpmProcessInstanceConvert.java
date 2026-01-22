@@ -81,7 +81,7 @@ public interface BpmProcessInstanceConvert {
                 }
                 if (CollUtil.isNotEmpty(respVO.getTasks())) {
                     respVO.getTasks().forEach(task -> {
-                        AdminUserRespDTO assigneeUser = userMap.get(task.getAssignee());
+                        AdminUserRespDTO assigneeUser = userMap.get(NumberUtil.parseLong(task.getAssignee(), null));
                         if (assigneeUser!= null) {
                             task.setAssigneeUser(BeanUtils.toBean(assigneeUser, UserSimpleBaseVO.class));
                             MapUtils.findAndThen(deptMap, assigneeUser.getDeptId(), dept -> task.getAssigneeUser().setDeptName(dept.getName()));
@@ -130,7 +130,7 @@ public interface BpmProcessInstanceConvert {
 
     default BpmMessageSendWhenProcessInstanceApproveReqDTO buildProcessInstanceApproveMessage(ProcessInstance instance) {
         return new BpmMessageSendWhenProcessInstanceApproveReqDTO()
-                .setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null))
+                .setStartUserId(instance.getStartUserId())
                 .setProcessInstanceId(instance.getId())
                 .setProcessInstanceName(instance.getName());
     }
@@ -140,7 +140,7 @@ public interface BpmProcessInstanceConvert {
             .setProcessInstanceName(instance.getName())
             .setProcessInstanceId(instance.getId())
             .setReason(reason)
-            .setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
+            .setStartUserId(instance.getStartUserId());
     }
 
     default BpmProcessInstanceBpmnModelViewRespVO buildProcessInstanceBpmnModelView(HistoricProcessInstance processInstance,
@@ -217,28 +217,35 @@ public interface BpmProcessInstanceConvert {
             userIds.add(NumberUtil.parseLong(processInstance.getStartUserId(), null));
         }
         for (BpmApprovalDetailRespVO.ActivityNode activityNode : activityNodes) {
-            CollUtil.addAll(userIds, convertSet(activityNode.getTasks(), BpmApprovalDetailRespVO.ActivityNodeTask::getAssignee));
-            CollUtil.addAll(userIds, convertSet(activityNode.getTasks(), BpmApprovalDetailRespVO.ActivityNodeTask::getOwner));
-            CollUtil.addAll(userIds, activityNode.getCandidateUserIds());
+            CollUtil.addAll(userIds, convertSet(activityNode.getTasks(),
+                    task -> NumberUtil.parseLong(task.getAssignee(), null)));
+            CollUtil.addAll(userIds, convertSet(activityNode.getTasks(),
+                    task -> NumberUtil.parseLong(task.getOwner(), null)));
+            CollUtil.addAll(userIds, convertSet(activityNode.getCandidateUserIds(),
+                    userId -> NumberUtil.parseLong(userId, null)));
         }
         if (todoTask != null) {
-            CollUtil.addIfAbsent(userIds, todoTask.getAssignee());
-            CollUtil.addIfAbsent(userIds, todoTask.getOwner());
+            CollUtil.addIfAbsent(userIds, NumberUtil.parseLong(todoTask.getAssignee(), null));
+            CollUtil.addIfAbsent(userIds, NumberUtil.parseLong(todoTask.getOwner(), null));
             if (CollUtil.isNotEmpty(todoTask.getChildren())) {
-                CollUtil.addAll(userIds, convertSet(todoTask.getChildren(), BpmTaskRespVO::getAssignee));
-                CollUtil.addAll(userIds, convertSet(todoTask.getChildren(), BpmTaskRespVO::getOwner));
+                CollUtil.addAll(userIds, convertSet(todoTask.getChildren(),
+                        task -> NumberUtil.parseLong(task.getAssignee(), null)));
+                CollUtil.addAll(userIds, convertSet(todoTask.getChildren(),
+                        task -> NumberUtil.parseLong(task.getOwner(), null)));
             }
         }
+        userIds.remove(null);
         return userIds;
     }
 
     default Set<Long> parseUserIds02(HistoricProcessInstance processInstance,
                                      List<HistoricTaskInstance> tasks) {
-        Set<Long> userIds = SetUtils.asSet(Long.valueOf(processInstance.getStartUserId()));
+        Set<Long> userIds = SetUtils.asSet(NumberUtil.parseLong(processInstance.getStartUserId(), null));
         tasks.forEach(task -> {
             CollUtil.addIfAbsent(userIds, NumberUtil.parseLong((task.getAssignee()), null));
             CollUtil.addIfAbsent(userIds, NumberUtil.parseLong((task.getOwner()), null));
         });
+        userIds.remove(null);
         return userIds;
     }
 

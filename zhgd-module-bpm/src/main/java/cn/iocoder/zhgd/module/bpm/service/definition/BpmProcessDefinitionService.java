@@ -149,7 +149,7 @@ public interface BpmProcessDefinitionService {
      * @param userId 用户编号
      * @return 是否可以发起流程
      */
-    boolean canUserStartProcessDefinition(BpmProcessDefinitionInfoDO processDefinition, Long userId);
+    boolean canUserStartProcessDefinition(BpmProcessDefinitionInfoDO processDefinition, String userId);
 
     /**
      * 获得 ids 对应的 Deployment Map

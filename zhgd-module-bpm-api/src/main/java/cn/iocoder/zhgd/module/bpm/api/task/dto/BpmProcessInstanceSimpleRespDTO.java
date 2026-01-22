@@ -22,6 +22,6 @@ public class BpmProcessInstanceSimpleRespDTO {
     private String processDefinitionKey;
     private String category;
 
-    private Long startUserId;
+    private String startUserId;
 
 }

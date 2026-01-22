@@ -17,6 +17,6 @@ public interface BpmProcessInstanceApi {
      * @param reqDTO 创建信息
      * @return 实例的编号
      */
-    String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO);
+    String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO);
 
 }

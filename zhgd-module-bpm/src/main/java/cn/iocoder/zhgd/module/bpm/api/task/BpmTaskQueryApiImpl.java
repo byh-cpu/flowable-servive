@@ -2,7 +2,6 @@ package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
-import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmTaskPageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmTaskSimpleRespDTO;
@@ -44,7 +43,7 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
     private BpmProcessDefinitionService processDefinitionService;
 
     @Override
-    public PageResult<BpmTaskSimpleRespDTO> getTodoTaskPage(Long userId, BpmTaskPageReqDTO pageReqDTO) {
+    public PageResult<BpmTaskSimpleRespDTO> getTodoTaskPage(String userId, BpmTaskPageReqDTO pageReqDTO) {
         BpmTaskPageReqVO pageReqVO = BeanUtils.toBean(pageReqDTO, BpmTaskPageReqVO.class);
         PageResult<Task> pageResult = taskService.getTaskTodoPage(userId, pageReqVO);
         if (pageResult.getList().isEmpty()) {
@@ -60,7 +59,7 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
     }
 
     @Override
-    public PageResult<BpmTaskSimpleRespDTO> getDoneTaskPage(Long userId, BpmTaskPageReqDTO pageReqDTO) {
+    public PageResult<BpmTaskSimpleRespDTO> getDoneTaskPage(String userId, BpmTaskPageReqDTO pageReqDTO) {
         BpmTaskPageReqVO pageReqVO = BeanUtils.toBean(pageReqDTO, BpmTaskPageReqVO.class);
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskDonePage(userId, pageReqVO);
         if (pageResult.getList().isEmpty()) {
@@ -76,7 +75,7 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
     }
 
     @Override
-    public PageResult<BpmTaskSimpleRespDTO> getManagerTaskPage(Long userId, BpmTaskPageReqDTO pageReqDTO) {
+    public PageResult<BpmTaskSimpleRespDTO> getManagerTaskPage(String userId, BpmTaskPageReqDTO pageReqDTO) {
         BpmTaskPageReqVO pageReqVO = BeanUtils.toBean(pageReqDTO, BpmTaskPageReqVO.class);
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskPage(userId, pageReqVO);
         if (pageResult.getList().isEmpty()) {
@@ -118,8 +117,8 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         }
         resp.setProcessInstanceId(task.getProcessInstanceId());
         resp.setProcessDefinitionId(task.getProcessDefinitionId());
-        resp.setAssigneeUserId(NumberUtil.parseLong(task.getAssignee(), null));
-        resp.setOwnerUserId(NumberUtil.parseLong(task.getOwner(), null));
+        resp.setAssigneeUserId(task.getAssignee());
+        resp.setOwnerUserId(task.getOwner());
 
         ProcessDefinition definition = definitionMap.get(task.getProcessDefinitionId());
         if (definition != null) {
@@ -135,13 +134,13 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         ProcessInstance instance = processInstanceMap != null ? processInstanceMap.get(task.getProcessInstanceId()) : null;
         if (instance != null) {
             resp.setProcessInstanceName(instance.getName());
-            resp.setStartUserId(NumberUtil.parseLong(instance.getStartUserId(), null));
+            resp.setStartUserId(instance.getStartUserId());
         }
         HistoricProcessInstance historicInstance = historicProcessInstanceMap != null
                 ? historicProcessInstanceMap.get(task.getProcessInstanceId()) : null;
         if (historicInstance != null) {
             resp.setProcessInstanceName(historicInstance.getName());
-            resp.setStartUserId(NumberUtil.parseLong(historicInstance.getStartUserId(), null));
+            resp.setStartUserId(historicInstance.getStartUserId());
         }
         return resp;
     }

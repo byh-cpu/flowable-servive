@@ -21,7 +21,7 @@ public class BpmUserGroupSaveReqVO {
 
     @Schema(description = "成员编号数组", requiredMode = Schema.RequiredMode.REQUIRED, example = "1,2,3")
     @NotNull(message = "成员编号数组不能为空")
-    private Set<Long> userIds;
+    private Set<String> userIds;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "状态不能为空")

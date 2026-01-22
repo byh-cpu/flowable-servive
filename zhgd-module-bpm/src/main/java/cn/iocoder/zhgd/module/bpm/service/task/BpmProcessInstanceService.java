@@ -82,7 +82,7 @@ public interface BpmProcessInstanceService {
      * @param pageReqVO 分页请求
      * @return 流程实例的分页
      */
-    PageResult<HistoricProcessInstance> getProcessInstancePage(Long userId,
+    PageResult<HistoricProcessInstance> getProcessInstancePage(String userId,
                                                                @Valid BpmProcessInstancePageReqVO pageReqVO);
 
     /**
@@ -94,7 +94,7 @@ public interface BpmProcessInstanceService {
      * @param reqVO 请求信息
      * @return 流程实例的进度
      */
-    BpmApprovalDetailRespVO getApprovalDetail(Long loginUserId, @Valid BpmApprovalDetailReqVO reqVO);
+    BpmApprovalDetailRespVO getApprovalDetail(String loginUserId, @Valid BpmApprovalDetailReqVO reqVO);
 
     /**
      * 获取下一个执行节点信息
@@ -103,7 +103,7 @@ public interface BpmProcessInstanceService {
      * @param reqVO 请求信息
      * @return 下一个执行节点信息
      */
-    List<BpmApprovalDetailRespVO.ActivityNode> getNextApprovalNodes(Long loginUserId, @Valid BpmApprovalDetailReqVO reqVO);
+    List<BpmApprovalDetailRespVO.ActivityNode> getNextApprovalNodes(String loginUserId, @Valid BpmApprovalDetailReqVO reqVO);
 
     /**
      * 获取流程实例的 BPMN 模型视图
@@ -122,7 +122,7 @@ public interface BpmProcessInstanceService {
      * @param createReqVO 创建信息
      * @return 实例的编号
      */
-    String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqVO createReqVO);
+    String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqVO createReqVO);
 
     /**
      * 创建流程实例（提供给内部）
@@ -131,7 +131,7 @@ public interface BpmProcessInstanceService {
      * @param createReqDTO 创建信息
      * @return 实例的编号
      */
-    String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqDTO createReqDTO);
+    String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqDTO createReqDTO);
 
     /**
      * 发起人取消流程实例
@@ -139,7 +139,7 @@ public interface BpmProcessInstanceService {
      * @param userId      用户编号
      * @param cancelReqVO 取消信息
      */
-    void cancelProcessInstanceByStartUser(Long userId, @Valid BpmProcessInstanceCancelReqVO cancelReqVO);
+    void cancelProcessInstanceByStartUser(String userId, @Valid BpmProcessInstanceCancelReqVO cancelReqVO);
 
     /**
      * 管理员取消流程实例
@@ -147,7 +147,7 @@ public interface BpmProcessInstanceService {
      * @param userId      用户编号
      * @param cancelReqVO 取消信息
      */
-    void cancelProcessInstanceByAdmin(Long userId, BpmProcessInstanceCancelReqVO cancelReqVO);
+    void cancelProcessInstanceByAdmin(String userId, BpmProcessInstanceCancelReqVO cancelReqVO);
 
     /**
      * 更新 ProcessInstance 为不通过

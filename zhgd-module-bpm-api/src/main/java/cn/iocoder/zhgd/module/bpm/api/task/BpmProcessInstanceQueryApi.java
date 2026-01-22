@@ -16,7 +16,7 @@ public interface BpmProcessInstanceQueryApi {
      * @param userId 登录用户
      * @param pageReqDTO 分页参数
      */
-    PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(Long userId,
+    PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(String userId,
                                                                         @Valid BpmProcessInstancePageReqDTO pageReqDTO);
 
 }

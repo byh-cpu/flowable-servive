@@ -16,7 +16,7 @@ public interface BpmTaskQueryApi {
      * @param userId 登录用户
      * @param pageReqDTO 分页参数
      */
-    PageResult<BpmTaskSimpleRespDTO> getTodoTaskPage(Long userId, @Valid BpmTaskPageReqDTO pageReqDTO);
+    PageResult<BpmTaskSimpleRespDTO> getTodoTaskPage(String userId, @Valid BpmTaskPageReqDTO pageReqDTO);
 
     /**
      * 已审批完成的任务分页
@@ -24,7 +24,7 @@ public interface BpmTaskQueryApi {
      * @param userId 登录用户
      * @param pageReqDTO 分页参数
      */
-    PageResult<BpmTaskSimpleRespDTO> getDoneTaskPage(Long userId, @Valid BpmTaskPageReqDTO pageReqDTO);
+    PageResult<BpmTaskSimpleRespDTO> getDoneTaskPage(String userId, @Valid BpmTaskPageReqDTO pageReqDTO);
 
     /**
      * 审批列表分页（全部任务）
@@ -32,6 +32,6 @@ public interface BpmTaskQueryApi {
      * @param userId 登录用户
      * @param pageReqDTO 分页参数
      */
-    PageResult<BpmTaskSimpleRespDTO> getManagerTaskPage(Long userId, @Valid BpmTaskPageReqDTO pageReqDTO);
+    PageResult<BpmTaskSimpleRespDTO> getManagerTaskPage(String userId, @Valid BpmTaskPageReqDTO pageReqDTO);
 
 }

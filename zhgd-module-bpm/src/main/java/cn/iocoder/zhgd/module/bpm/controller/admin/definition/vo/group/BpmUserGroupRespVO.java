@@ -20,7 +20,7 @@ public class BpmUserGroupRespVO {
     private String description;
 
     @Schema(description = "成员编号数组", requiredMode = Schema.RequiredMode.REQUIRED, example = "1,2,3")
-    private Set<Long> userIds;
+    private Set<String> userIds;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer status;
