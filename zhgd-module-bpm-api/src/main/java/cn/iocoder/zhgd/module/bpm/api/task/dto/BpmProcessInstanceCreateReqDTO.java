@@ -5,6 +5,7 @@ import lombok.Data;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
  */
 @Data
 @Setter
-public class BpmProcessInstanceCreateReqDTO {
+public class BpmProcessInstanceCreateReqDTO implements Serializable {
 
     /**
      * 流程定义的标识
