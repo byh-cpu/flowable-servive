@@ -1,5 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.api.task;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
@@ -119,6 +120,9 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         resp.setProcessDefinitionId(task.getProcessDefinitionId());
         resp.setAssigneeUserId(task.getAssignee());
         resp.setOwnerUserId(task.getOwner());
+        ProcessInstance instance = processInstanceMap != null ? processInstanceMap.get(task.getProcessInstanceId()) : null;
+        HistoricProcessInstance historicInstance = historicProcessInstanceMap != null
+                ? historicProcessInstanceMap.get(task.getProcessInstanceId()) : null;
         Map<String, Object> formVariables = FlowableUtils.getTaskFormVariable(task);
         if (CollUtil.isEmpty(formVariables)) {
             Map<String, Object> processVariables = null;
@@ -147,14 +151,10 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         } else if (definition != null) {
             resp.setCategory(definition.getCategory());
         }
-
-        ProcessInstance instance = processInstanceMap != null ? processInstanceMap.get(task.getProcessInstanceId()) : null;
         if (instance != null) {
             resp.setProcessInstanceName(instance.getName());
             resp.setStartUserId(instance.getStartUserId());
         }
-        HistoricProcessInstance historicInstance = historicProcessInstanceMap != null
-                ? historicProcessInstanceMap.get(task.getProcessInstanceId()) : null;
         if (historicInstance != null) {
             resp.setProcessInstanceName(historicInstance.getName());
             resp.setStartUserId(historicInstance.getStartUserId());
