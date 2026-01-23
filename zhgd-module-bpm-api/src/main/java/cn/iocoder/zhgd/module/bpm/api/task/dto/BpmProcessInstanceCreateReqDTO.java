@@ -4,6 +4,7 @@ import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 @Data
 @Setter
+@Accessors(chain = true)
 public class BpmProcessInstanceCreateReqDTO implements Serializable {
 
     /**
