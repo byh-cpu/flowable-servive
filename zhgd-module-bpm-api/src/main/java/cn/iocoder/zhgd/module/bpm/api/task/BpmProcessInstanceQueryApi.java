@@ -1,9 +1,11 @@
 package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceDetailRespDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstancePageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceSimpleRespDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * 流程实例查询 Api 接口（Dubbo）
@@ -18,5 +20,14 @@ public interface BpmProcessInstanceQueryApi {
      */
     PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(String userId,
                                                                         @Valid BpmProcessInstancePageReqDTO pageReqDTO);
+
+    /**
+     * 获得流程实例详情
+     *
+     * @param processInstanceId 流程实例编号
+     * @return 流程实例详情
+     */
+    BpmProcessInstanceDetailRespDTO getProcessInstanceDetail(
+            @NotEmpty(message = "流程实例编号不能为空") String processInstanceId);
 
 }

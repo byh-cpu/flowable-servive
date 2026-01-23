@@ -56,7 +56,7 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
         Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
-        return buildTaskPage(pageResult, processInstanceMap, null, definitionMap, definitionInfoMap);
+        return buildTaskPage(pageResult, processInstanceMap, null, definitionMap, definitionInfoMap, false);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
         Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        return buildTaskPage(pageResult, null, processInstanceMap, definitionMap, definitionInfoMap);
+        return buildTaskPage(pageResult, null, processInstanceMap, definitionMap, definitionInfoMap, false);
     }
 
     @Override
@@ -88,16 +88,18 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
         Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        return buildTaskPage(pageResult, null, processInstanceMap, definitionMap, definitionInfoMap);
+        return buildTaskPage(pageResult, null, processInstanceMap, definitionMap, definitionInfoMap, true);
     }
 
     private PageResult<BpmTaskSimpleRespDTO> buildTaskPage(PageResult<? extends TaskInfo> pageResult,
                                                           Map<String, ProcessInstance> processInstanceMap,
                                                           Map<String, HistoricProcessInstance> historicProcessInstanceMap,
                                                           Map<String, ProcessDefinition> definitionMap,
-                                                          Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap) {
+                                                          Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap,
+                                                          boolean useHistoricInstanceFormVariables) {
         List<BpmTaskSimpleRespDTO> list = convertList(pageResult.getList(),
-                task -> buildTaskResp(task, processInstanceMap, historicProcessInstanceMap, definitionMap, definitionInfoMap));
+                task -> buildTaskResp(task, processInstanceMap, historicProcessInstanceMap, definitionMap,
+                        definitionInfoMap, useHistoricInstanceFormVariables));
         return new PageResult<>(list, pageResult.getTotal());
     }
 
@@ -105,7 +107,8 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
                                                Map<String, ProcessInstance> processInstanceMap,
                                                Map<String, HistoricProcessInstance> historicProcessInstanceMap,
                                                Map<String, ProcessDefinition> definitionMap,
-                                               Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap) {
+                                               Map<String, BpmProcessDefinitionInfoDO> definitionInfoMap,
+                                               boolean useHistoricInstanceFormVariables) {
         BpmTaskSimpleRespDTO resp = new BpmTaskSimpleRespDTO();
         resp.setId(task.getId());
         resp.setName(task.getName());
@@ -123,20 +126,28 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         ProcessInstance instance = processInstanceMap != null ? processInstanceMap.get(task.getProcessInstanceId()) : null;
         HistoricProcessInstance historicInstance = historicProcessInstanceMap != null
                 ? historicProcessInstanceMap.get(task.getProcessInstanceId()) : null;
-        Map<String, Object> formVariables = FlowableUtils.getTaskFormVariable(task);
-        if (CollUtil.isEmpty(formVariables)) {
-            Map<String, Object> processVariables = null;
-            if (task instanceof Task) {
-                processVariables = ((Task) task).getProcessVariables();
-            }
-            if (processVariables == null && instance != null) {
-                processVariables = instance.getProcessVariables();
-            }
-            if (processVariables == null && historicInstance != null) {
-                processVariables = historicInstance.getProcessVariables();
-            }
+        Map<String, Object> formVariables = null;
+        if (useHistoricInstanceFormVariables) {
+            Map<String, Object> processVariables = historicInstance != null ? historicInstance.getProcessVariables() : null;
             if (processVariables != null) {
                 formVariables = FlowableUtils.filterProcessInstanceFormVariable(new java.util.HashMap<>(processVariables));
+            }
+        } else {
+            formVariables = FlowableUtils.getTaskFormVariable(task);
+            if (CollUtil.isEmpty(formVariables)) {
+                Map<String, Object> processVariables = null;
+                if (task instanceof Task) {
+                    processVariables = ((Task) task).getProcessVariables();
+                }
+                if (processVariables == null && instance != null) {
+                    processVariables = instance.getProcessVariables();
+                }
+                if (processVariables == null && historicInstance != null) {
+                    processVariables = historicInstance.getProcessVariables();
+                }
+                if (processVariables != null) {
+                    formVariables = FlowableUtils.filterProcessInstanceFormVariable(new java.util.HashMap<>(processVariables));
+                }
             }
         }
         resp.setFormVariables(formVariables);
