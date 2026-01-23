@@ -119,7 +119,23 @@ public class BpmTaskQueryApiImpl implements BpmTaskQueryApi {
         resp.setProcessDefinitionId(task.getProcessDefinitionId());
         resp.setAssigneeUserId(task.getAssignee());
         resp.setOwnerUserId(task.getOwner());
-        resp.setFormVariables(FlowableUtils.getTaskFormVariable(task));
+        Map<String, Object> formVariables = FlowableUtils.getTaskFormVariable(task);
+        if (CollUtil.isEmpty(formVariables)) {
+            Map<String, Object> processVariables = null;
+            if (task instanceof Task) {
+                processVariables = ((Task) task).getProcessVariables();
+            }
+            if (processVariables == null && instance != null) {
+                processVariables = instance.getProcessVariables();
+            }
+            if (processVariables == null && historicInstance != null) {
+                processVariables = historicInstance.getProcessVariables();
+            }
+            if (processVariables != null) {
+                formVariables = FlowableUtils.filterProcessInstanceFormVariable(new java.util.HashMap<>(processVariables));
+            }
+        }
+        resp.setFormVariables(formVariables);
 
         ProcessDefinition definition = definitionMap.get(task.getProcessDefinitionId());
         if (definition != null) {
