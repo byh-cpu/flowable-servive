@@ -111,9 +111,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         }
 
         BpmProcessInstanceTaskDetailRespDTO resp = new BpmProcessInstanceTaskDetailRespDTO();
-        BpmProcessInstanceLiteRespDTO processInstance = buildProcessInstanceLite(instance);
-        processInstance.setFormVariables(null);
-        resp.setProcessInstance(processInstance);
+        resp.setProcessInstance(buildProcessInstanceLite(instance));
         resp.setFormVariables(FlowableUtils.getProcessInstanceFormVariable(instance));
 
         BpmnModel bpmnModel = processDefinitionService.getProcessDefinitionBpmnModel(instance.getProcessDefinitionId());
