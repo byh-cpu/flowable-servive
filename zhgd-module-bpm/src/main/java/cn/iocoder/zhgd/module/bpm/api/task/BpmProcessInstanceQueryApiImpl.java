@@ -1,29 +1,32 @@
 package cn.iocoder.zhgd.module.bpm.api.task;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
-import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceDetailRespDTO;
+import cn.iocoder.zhgd.framework.common.util.string.StrUtils;
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceLiteRespDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstancePageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceSimpleRespDTO;
-import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.instance.BpmApprovalDetailReqVO;
-import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.instance.BpmApprovalDetailRespVO;
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceTaskDetailRespDTO;
 import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.instance.BpmProcessInstancePageReqVO;
-import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
+import cn.iocoder.zhgd.module.bpm.framework.flowable.core.candidate.BpmTaskCandidateInvoker;
+import cn.iocoder.zhgd.module.bpm.framework.flowable.core.enums.BpmTaskCandidateStrategyEnum;
 import cn.iocoder.zhgd.module.bpm.framework.flowable.core.util.FlowableUtils;
+import cn.iocoder.zhgd.module.bpm.framework.flowable.core.util.BpmnModelUtils;
 import cn.iocoder.zhgd.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
+import cn.iocoder.zhgd.module.bpm.service.task.BpmTaskService;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.FlowElement;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +44,10 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
     private BpmProcessInstanceService processInstanceService;
     @Resource
     private BpmProcessDefinitionService processDefinitionService;
+    @Resource
+    private BpmTaskService taskService;
+    @Resource
+    private BpmTaskCandidateInvoker taskCandidateInvoker;
 
     @Override
     public PageResult<BpmProcessInstanceSimpleRespDTO> getMyProcessInstancePage(String userId,
@@ -86,13 +93,51 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
     }
 
     @Override
-    public BpmProcessInstanceDetailRespDTO getProcessInstanceDetail(String processInstanceId) {
+    public BpmProcessInstanceLiteRespDTO getProcessInstanceDetailLite(String processInstanceId) {
         HistoricProcessInstance instance = processInstanceService.getHistoricProcessInstance(processInstanceId);
         if (instance == null) {
             return null;
         }
 
-        BpmProcessInstanceDetailRespDTO resp = new BpmProcessInstanceDetailRespDTO();
+        return buildProcessInstanceLite(instance);
+    }
+
+    @Override
+    public BpmProcessInstanceTaskDetailRespDTO getProcessInstanceDetail(String processInstanceId) {
+        HistoricProcessInstance instance = processInstanceService.getHistoricProcessInstance(processInstanceId);
+        if (instance == null) {
+            return null;
+        }
+
+        BpmProcessInstanceTaskDetailRespDTO resp = new BpmProcessInstanceTaskDetailRespDTO();
+        BpmProcessInstanceLiteRespDTO processInstance = buildProcessInstanceLite(instance);
+        processInstance.setFormVariables(null);
+        resp.setProcessInstance(processInstance);
+        resp.setFormVariables(FlowableUtils.getProcessInstanceFormVariable(instance));
+
+        BpmnModel bpmnModel = processDefinitionService.getProcessDefinitionBpmnModel(instance.getProcessDefinitionId());
+        List<BpmProcessInstanceTaskDetailRespDTO.TaskDetail> tasks = new ArrayList<>();
+        taskService.getTaskListByProcessInstanceId(processInstanceId, Boolean.TRUE).forEach(task -> {
+            BpmProcessInstanceTaskDetailRespDTO.TaskDetail taskDetail = new BpmProcessInstanceTaskDetailRespDTO.TaskDetail();
+            taskDetail.setId(task.getId());
+            taskDetail.setName(task.getName());
+            taskDetail.setTaskDefinitionKey(task.getTaskDefinitionKey());
+            taskDetail.setStatus(FlowableUtils.getTaskStatus(task));
+            taskDetail.setCreateTime(DateUtils.of(task.getCreateTime()));
+            taskDetail.setEndTime(DateUtils.of(task.getEndTime()));
+            taskDetail.setAssigneeUserId(task.getAssignee());
+            taskDetail.setOwnerUserId(task.getOwner());
+            taskDetail.setTaskVariables(FlowableUtils.getTaskFormVariable(task));
+
+            fillTaskCandidates(taskDetail, bpmnModel, instance);
+            tasks.add(taskDetail);
+        });
+        resp.setTasks(tasks);
+        return resp;
+    }
+
+    private BpmProcessInstanceLiteRespDTO buildProcessInstanceLite(HistoricProcessInstance instance) {
+        BpmProcessInstanceLiteRespDTO resp = new BpmProcessInstanceLiteRespDTO();
         resp.setId(instance.getId());
         resp.setName(instance.getName());
         resp.setBusinessKey(instance.getBusinessKey());
@@ -113,67 +158,32 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         } else if (definition != null) {
             resp.setCategory(definition.getCategory());
         }
-
-        resp.setApproverUserIds(new ArrayList<>(getProcessInstanceApproverUserIds(instance)));
         return resp;
     }
 
-    private LinkedHashSet<String> getProcessInstanceApproverUserIds(HistoricProcessInstance instance) {
-        LinkedHashSet<String> approverUserIdSet = new LinkedHashSet<>();
-        BpmApprovalDetailRespVO detail = processInstanceService.getApprovalDetail(instance.getStartUserId(),
-                new BpmApprovalDetailReqVO().setProcessInstanceId(instance.getId()));
-        if (detail == null) {
-            return approverUserIdSet;
-        }
-
-        if (CollUtil.isNotEmpty(detail.getActivityNodes())) {
-            detail.getActivityNodes().forEach(node -> {
-                if (CollUtil.isNotEmpty(node.getCandidateUserIds())) {
-                    approverUserIdSet.addAll(node.getCandidateUserIds());
-                }
-                if (CollUtil.isNotEmpty(node.getTasks())) {
-                    node.getTasks().forEach(task -> addTaskApproverUserIds(approverUserIdSet, task));
-                }
-            });
-        }
-
-        addTodoTaskApproverUserIds(approverUserIdSet, detail.getTodoTask());
-        return approverUserIdSet;
-    }
-
-    private void addTodoTaskApproverUserIds(LinkedHashSet<String> approverUserIdSet, BpmTaskRespVO task) {
-        if (task == null) {
+    private void fillTaskCandidates(BpmProcessInstanceTaskDetailRespDTO.TaskDetail taskDetail,
+                                    BpmnModel bpmnModel,
+                                    HistoricProcessInstance instance) {
+        if (bpmnModel == null || StrUtil.isEmpty(taskDetail.getTaskDefinitionKey())) {
             return;
         }
-        addTaskApproverUserIds(approverUserIdSet, task);
-        if (CollUtil.isNotEmpty(task.getChildren())) {
-            task.getChildren().forEach(child -> addTaskApproverUserIds(approverUserIdSet, child));
-        }
-    }
-
-    private void addTaskApproverUserIds(LinkedHashSet<String> approverUserIdSet,
-                                        BpmApprovalDetailRespVO.ActivityNodeTask task) {
-        if (task == null) {
+        FlowElement flowElement = BpmnModelUtils.getFlowElementById(bpmnModel, taskDetail.getTaskDefinitionKey());
+        Integer strategy = BpmnModelUtils.parseCandidateStrategy(flowElement);
+        taskDetail.setCandidateStrategy(strategy);
+        if (strategy == null) {
             return;
         }
-        if (StrUtil.isNotEmpty(task.getAssignee())) {
-            approverUserIdSet.add(task.getAssignee());
-        }
-        if (StrUtil.isNotEmpty(task.getOwner())) {
-            approverUserIdSet.add(task.getOwner());
-        }
-    }
-
-    private void addTaskApproverUserIds(LinkedHashSet<String> approverUserIdSet, BpmTaskRespVO task) {
-        if (task == null) {
+        String param = BpmnModelUtils.parseCandidateParam(flowElement);
+        if (BpmTaskCandidateStrategyEnum.ROLE.getStrategy().equals(strategy)) {
+            if (StrUtil.isNotEmpty(param)) {
+                taskDetail.setCandidateRoleIds(convertList(StrUtils.splitToLongSet(param), String::valueOf));
+            }
             return;
         }
-        if (StrUtil.isNotEmpty(task.getAssignee())) {
-            approverUserIdSet.add(task.getAssignee());
-        }
-        if (StrUtil.isNotEmpty(task.getOwner())) {
-            approverUserIdSet.add(task.getOwner());
-        }
+        List<String> userIds = new ArrayList<>(taskCandidateInvoker.calculateUsersByActivity(
+                bpmnModel, taskDetail.getTaskDefinitionKey(), instance.getStartUserId(),
+                instance.getProcessDefinitionId(), instance.getProcessVariables()));
+        taskDetail.setCandidateUserIds(userIds);
     }
 
 }

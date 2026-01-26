@@ -1,5 +1,6 @@
 package cn.iocoder.zhgd.module.bpm.api.task;
 
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceCancelReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import jakarta.validation.Valid;
 
@@ -18,5 +19,21 @@ public interface BpmProcessInstanceApi {
      * @return 实例的编号
      */
     String createProcessInstance(String userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO);
+
+    /**
+     * 发起人取消流程实例
+     *
+     * @param userId 登录用户
+     * @param reqDTO 取消信息
+     */
+    void cancelProcessInstanceByStartUser(String userId, @Valid BpmProcessInstanceCancelReqDTO reqDTO);
+
+    /**
+     * 管理员取消流程实例
+     *
+     * @param userId 登录用户
+     * @param reqDTO 取消信息
+     */
+    void cancelProcessInstanceByAdmin(String userId, @Valid BpmProcessInstanceCancelReqDTO reqDTO);
 
 }

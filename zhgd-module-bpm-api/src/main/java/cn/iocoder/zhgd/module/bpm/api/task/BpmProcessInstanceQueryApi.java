@@ -1,9 +1,10 @@
 package cn.iocoder.zhgd.module.bpm.api.task;
 
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
-import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceDetailRespDTO;
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceLiteRespDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstancePageReqDTO;
 import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceSimpleRespDTO;
+import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceTaskDetailRespDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -22,12 +23,21 @@ public interface BpmProcessInstanceQueryApi {
                                                                         @Valid BpmProcessInstancePageReqDTO pageReqDTO);
 
     /**
-     * 获得流程实例详情
+     * 获得流程实例轻量详情
      *
      * @param processInstanceId 流程实例编号
-     * @return 流程实例详情
+     * @return 流程实例轻量详情
      */
-    BpmProcessInstanceDetailRespDTO getProcessInstanceDetail(
+    BpmProcessInstanceLiteRespDTO getProcessInstanceDetailLite(
+            @NotEmpty(message = "流程实例编号不能为空") String processInstanceId);
+
+    /**
+     * 获得流程实例标准详情（含任务信息）
+     *
+     * @param processInstanceId 流程实例编号
+     * @return 流程实例标准详情
+     */
+    BpmProcessInstanceTaskDetailRespDTO getProcessInstanceDetail(
             @NotEmpty(message = "流程实例编号不能为空") String processInstanceId);
 
 }
