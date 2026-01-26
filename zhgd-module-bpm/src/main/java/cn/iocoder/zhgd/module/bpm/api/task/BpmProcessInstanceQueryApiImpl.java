@@ -124,6 +124,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
             taskDetail.setName(task.getName());
             taskDetail.setTaskDefinitionKey(task.getTaskDefinitionKey());
             taskDetail.setStatus(FlowableUtils.getTaskStatus(task));
+            taskDetail.setReason(FlowableUtils.getTaskReason(task));
             taskDetail.setCreateTime(DateUtils.of(task.getCreateTime()));
             taskDetail.setEndTime(DateUtils.of(task.getEndTime()));
             taskDetail.setAssigneeUserId(task.getAssignee());

@@ -35,6 +35,7 @@ public class BpmProcessInstanceTaskDetailRespDTO implements Serializable {
         private String name;
         private String taskDefinitionKey;
         private Integer status;
+        private String reason;
         private LocalDateTime createTime;
         private LocalDateTime endTime;
 
