@@ -40,6 +40,7 @@ public class BpmProcessInstanceTaskDetailRespDTO implements Serializable {
         private LocalDateTime endTime;
 
         private String assigneeUserId;
+        private String assigneeUserName;
         private String ownerUserId;
 
         /**
