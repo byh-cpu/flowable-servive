@@ -24,6 +24,7 @@ import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.task.api.Task;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -134,6 +135,12 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         });
         resp.setTasks(tasks);
         return resp;
+    }
+
+    @Override
+    public List<String> getRunningTaskIds(String processInstanceId) {
+        List<Task> tasks = taskService.getRunningTaskListByProcessInstanceId(processInstanceId, null, null);
+        return convertList(tasks, Task::getId);
     }
 
     private BpmProcessInstanceLiteRespDTO buildProcessInstanceLite(HistoricProcessInstance instance) {

@@ -8,6 +8,8 @@ import cn.iocoder.zhgd.module.bpm.api.task.dto.BpmProcessInstanceTaskDetailRespD
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.List;
+
 /**
  * 流程实例查询 Api 接口（Dubbo）
  */
@@ -38,6 +40,15 @@ public interface BpmProcessInstanceQueryApi {
      * @return 流程实例标准详情
      */
     BpmProcessInstanceTaskDetailRespDTO getProcessInstanceDetail(
+            @NotEmpty(message = "流程实例编号不能为空") String processInstanceId);
+
+    /**
+     * 获得流程实例运行中的任务编号列表
+     *
+     * @param processInstanceId 流程实例编号
+     * @return 运行中的任务编号列表
+     */
+    List<String> getRunningTaskIds(
             @NotEmpty(message = "流程实例编号不能为空") String processInstanceId);
 
 }
