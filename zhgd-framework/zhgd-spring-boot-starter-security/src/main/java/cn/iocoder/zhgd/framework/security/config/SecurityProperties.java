@@ -48,4 +48,16 @@ public class SecurityProperties {
      * PasswordEncoder 加密复杂度，越高开销越大
      */
     private Integer passwordEncoderLength = 4;
+
+    /**
+     * 是否开启权限校验（@PreAuthorize 等）
+     */
+    @NotNull(message = "权限校验开关不能为空")
+    private Boolean permissionCheckEnabled = true;
+
+    /**
+     * 是否开启登录校验（没有 token 也能访问）
+     */
+    @NotNull(message = "登录校验开关不能为空")
+    private Boolean loginCheckEnabled = false;
 }

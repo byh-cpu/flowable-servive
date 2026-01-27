@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.zhgd.framework.common.biz.system.permission.PermissionCommonApi;
 import cn.iocoder.zhgd.framework.security.core.LoginUser;
 import cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils;
+import cn.iocoder.zhgd.framework.security.config.SecurityProperties;
 import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtil
 public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
 
     private final PermissionCommonApi permissionApi;
+    private final SecurityProperties securityProperties;
 
     @Override
     public boolean hasPermission(String permission) {
@@ -28,6 +30,9 @@ public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
 
     @Override
     public boolean hasAnyPermissions(String... permissions) {
+        if (!Boolean.TRUE.equals(securityProperties.getPermissionCheckEnabled())) {
+            return true;
+        }
         // 特殊：跨租户访问
         if (skipPermissionCheck()) {
             return true;
@@ -48,6 +53,9 @@ public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
 
     @Override
     public boolean hasAnyRoles(String... roles) {
+        if (!Boolean.TRUE.equals(securityProperties.getPermissionCheckEnabled())) {
+            return true;
+        }
         // 特殊：跨租户访问
         if (skipPermissionCheck()) {
             return true;
@@ -68,6 +76,9 @@ public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
 
     @Override
     public boolean hasAnyScopes(String... scope) {
+        if (!Boolean.TRUE.equals(securityProperties.getPermissionCheckEnabled())) {
+            return true;
+        }
         // 特殊：跨租户访问
         if (skipPermissionCheck()) {
             return true;
