@@ -301,3 +301,7 @@ zhgd:
       type: redis
 
 debug: false
+yudao:
+  security:
+    login-check-enabled: false   # 默认跳过登录
+    permission-check-enabled: false
