@@ -1,11 +1,13 @@
 package cn.iocoder.zhgd.framework.web.core.util;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.zhgd.framework.common.enums.TerminalEnum;
 import cn.iocoder.zhgd.framework.common.enums.UserTypeEnum;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
-import cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.zhgd.framework.web.config.WebProperties;
+import cn.pinming.core.cookie.AuthUser;
+import cn.pinming.core.cookie.support.AuthUserHolder;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestAttributes;
@@ -90,7 +92,18 @@ public class WebFrameworkUtils {
             return null;
         }
         Long userId = (Long) request.getAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID);
-        return userId != null ? userId : SecurityFrameworkUtils.getLoginUserId();
+        if (userId != null) {
+            return userId;
+        }
+        AuthUserHolder authUserHolder = getAuthUserHolder();
+        if (authUserHolder == null) {
+            return null;
+        }
+        AuthUser authUser = authUserHolder.getCurrentUser();
+        if (authUser == null || !NumberUtil.isLong(authUser.getId())) {
+            return null;
+        }
+        return Long.valueOf(authUser.getId());
     }
 
     /**
@@ -126,8 +139,7 @@ public class WebFrameworkUtils {
 
     public static Long getLoginUserId() {
         HttpServletRequest request = getRequest();
-        Long userId = getLoginUserId(request);
-        return userId != null ? userId : SecurityFrameworkUtils.getLoginUserId();
+        return getLoginUserId(request);
     }
 
     public static Integer getTerminal() {
@@ -155,6 +167,14 @@ public class WebFrameworkUtils {
         }
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
         return servletRequestAttributes.getRequest();
+    }
+
+    private static AuthUserHolder getAuthUserHolder() {
+        try {
+            return SpringUtil.getBean(AuthUserHolder.class);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
 }

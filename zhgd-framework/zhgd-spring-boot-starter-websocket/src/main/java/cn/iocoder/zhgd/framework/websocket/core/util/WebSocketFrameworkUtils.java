@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.framework.websocket.core.util;
 
 import cn.iocoder.zhgd.framework.security.core.LoginUser;
+import cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
@@ -40,7 +41,8 @@ public class WebSocketFrameworkUtils {
      */
     public static Long getLoginUserId(WebSocketSession session) {
         LoginUser loginUser = getLoginUser(session);
-        return loginUser != null ? loginUser.getId() : null;
+        Long userId = loginUser != null ? loginUser.getId() : null;
+        return userId != null ? userId : SecurityFrameworkUtils.getLoginUserId();
     }
 
     /**
