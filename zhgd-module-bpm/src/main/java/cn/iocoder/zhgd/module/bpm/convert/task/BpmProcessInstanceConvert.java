@@ -90,10 +90,12 @@ public interface BpmProcessInstanceConvert {
                 }
             }
             // 摘要
+            HistoricProcessInstance instance = pageResult.getList().get(i);
             respVO.setSummary(FlowableUtils.getSummary(processDefinitionInfoMap.get(respVO.getProcessDefinitionId()),
-                    pageResult.getList().get(i).getProcessVariables()));
+                    instance.getProcessVariables()));
+            respVO.setTitle(FlowableUtils.getProcessInstanceTitle(instance));
             // 表单
-            respVO.setFormVariables(pageResult.getList().get(i).getProcessVariables());
+            respVO.setFormVariables(FlowableUtils.getProcessInstanceFormVariable(instance));
         }
         return vpPageResult;
     }
@@ -105,6 +107,7 @@ public interface BpmProcessInstanceConvert {
                                                           DeptRespDTO dept) {
         BpmProcessInstanceRespVO respVO = BeanUtils.toBean(processInstance, BpmProcessInstanceRespVO.class);
         respVO.setStatus(FlowableUtils.getProcessInstanceStatus(processInstance))
+                .setTitle(FlowableUtils.getProcessInstanceTitle(processInstance))
                 .setFormVariables(FlowableUtils.getProcessInstanceFormVariable(processInstance));
         // definition
         respVO.setProcessDefinition(BeanUtils.toBean(processDefinition, BpmProcessDefinitionRespVO.class));
@@ -315,6 +318,7 @@ public interface BpmProcessInstanceConvert {
         // 流程相关数据
         BpmProcessInstanceRespVO processInstance = new BpmProcessInstanceRespVO()
                 .setId(historicProcessInstance.getId()).setName(historicProcessInstance.getName())
+                .setTitle(FlowableUtils.getProcessInstanceTitle(historicProcessInstance))
                 .setBusinessKey(historicProcessInstance.getBusinessKey())
                 .setStartTime(DateUtils.of(historicProcessInstance.getStartTime()))
                 .setEndTime(DateUtils.of(historicProcessInstance.getEndTime()))

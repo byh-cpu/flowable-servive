@@ -842,8 +842,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         if (processIdRule != null && Boolean.TRUE.equals(processIdRule.getEnable())) {
             processInstanceBuilder.predefineProcessInstanceId(processIdRedisDAO.generate(processIdRule));
         }
-        // 3.2 流程名称
-        processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
+        // 3.2 流程标题
+        String title = generateProcessInstanceTitle(userId, definition, processDefinitionInfo, variables);
+        if (StrUtil.isNotBlank(title)) {
+            variables.put(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_TITLE, title);
+        }
+        // 3.3 流程名称（保持为流程定义名）
+        processInstanceBuilder.name(definition.getName());
         // 3.3 发起流程实例
         ProcessInstance instance = processInstanceBuilder.start();
 
@@ -887,16 +892,16 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         });
     }
 
-    private String generateProcessInstanceName(String userId,
-                                               ProcessDefinition definition,
-                                               BpmProcessDefinitionInfoDO definitionInfo,
-                                               Map<String, Object> variables) {
+    private String generateProcessInstanceTitle(String userId,
+                                                ProcessDefinition definition,
+                                                BpmProcessDefinitionInfoDO definitionInfo,
+                                                Map<String, Object> variables) {
         if (definition == null || definitionInfo == null) {
             return null;
         }
         BpmModelMetaInfoVO.TitleSetting titleSetting = definitionInfo.getTitleSetting();
         if (titleSetting == null || !BooleanUtil.isTrue(titleSetting.getEnable())) {
-            return definition.getName();
+            return null;
         }
         Long userIdLong = NumberUtil.parseLong(userId, null);
         AdminUserRespDTO user = userIdLong != null ? adminUserApi.getUser(userIdLong) : null;
@@ -1073,10 +1078,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
             @Override
             public void afterCommit() {
-                String name = generateProcessInstanceName(instance.getStartUserId(),
+                String title = generateProcessInstanceTitle(instance.getStartUserId(),
                         processDefinition, processDefinitionInfo, instance.getProcessVariables());
-                if (ObjUtil.notEqual(instance.getName(), name)) {
-                    runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), name);
+                if (StrUtil.isNotBlank(title)) {
+                    runtimeService.setVariable(instance.getProcessInstanceId(),
+                            BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_TITLE, title);
                 }
 
                 // 流程前置通知：需要在流程启动后(事务提交后)，保证 variables 已设置

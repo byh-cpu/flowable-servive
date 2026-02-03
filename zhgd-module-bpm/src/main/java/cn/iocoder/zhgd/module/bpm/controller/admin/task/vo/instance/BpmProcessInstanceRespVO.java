@@ -21,6 +21,9 @@ public class BpmProcessInstanceRespVO {
     @Schema(description = "流程名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋道")
     private String name;
 
+    @Schema(description = "流程标题（拼接后的标题）")
+    private String title;
+
     @Schema(description = "流程摘要")
     private List<KeyValue<String, String>> summary; // 只有流程表单，才有摘要！
 

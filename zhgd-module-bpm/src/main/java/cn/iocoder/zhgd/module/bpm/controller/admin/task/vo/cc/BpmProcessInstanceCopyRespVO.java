@@ -22,6 +22,8 @@ public class BpmProcessInstanceCopyRespVO {
     private String processInstanceId;
     @Schema(description = "流程实例的名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "测试")
     private String processInstanceName;
+    @Schema(description = "流程标题（拼接后的标题）")
+    private String processInstanceTitle;
     @Schema(description = "流程实例的发起时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime processInstanceStartTime;
 

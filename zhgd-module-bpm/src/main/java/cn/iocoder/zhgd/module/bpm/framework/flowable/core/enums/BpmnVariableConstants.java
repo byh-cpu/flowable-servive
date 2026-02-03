@@ -24,6 +24,12 @@ public class BpmnVariableConstants {
      */
     public static final String PROCESS_INSTANCE_VARIABLE_REASON = "PROCESS_REASON";
     /**
+     * 流程实例的变量 - 标题（拼接后的流程标题）
+     *
+     * @see ProcessInstance#getProcessVariables()
+     */
+    public static final String PROCESS_INSTANCE_VARIABLE_TITLE = "PROCESS_TITLE";
+    /**
      * 流程实例的变量 - 发起用户选择的审批人 Map
      *
      * @see ProcessInstance#getProcessVariables()

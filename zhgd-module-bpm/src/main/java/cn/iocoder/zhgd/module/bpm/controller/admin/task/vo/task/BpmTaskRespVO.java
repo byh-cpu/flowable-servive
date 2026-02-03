@@ -100,6 +100,9 @@ public class BpmTaskRespVO {
         @Schema(description = "流程实例名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋道")
         private String name;
 
+        @Schema(description = "流程标题（拼接后的标题）")
+        private String title;
+
         @Schema(description = "提交时间", requiredMode = Schema.RequiredMode.REQUIRED)
         private LocalDateTime createTime;
 

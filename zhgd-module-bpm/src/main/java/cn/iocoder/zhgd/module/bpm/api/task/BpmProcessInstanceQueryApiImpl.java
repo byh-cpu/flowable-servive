@@ -73,6 +73,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         BpmProcessInstanceSimpleRespDTO resp = new BpmProcessInstanceSimpleRespDTO();
         resp.setId(instance.getId());
         resp.setName(instance.getName());
+        resp.setTitle(FlowableUtils.getProcessInstanceTitle(instance));
         resp.setStartTime(DateUtils.of(instance.getStartTime()));
         resp.setEndTime(DateUtils.of(instance.getEndTime()));
         resp.setStatus(FlowableUtils.getProcessInstanceStatus(instance));
@@ -146,6 +147,7 @@ public class BpmProcessInstanceQueryApiImpl implements BpmProcessInstanceQueryAp
         BpmProcessInstanceLiteRespDTO resp = new BpmProcessInstanceLiteRespDTO();
         resp.setId(instance.getId());
         resp.setName(instance.getName());
+        resp.setTitle(FlowableUtils.getProcessInstanceTitle(instance));
         resp.setBusinessKey(instance.getBusinessKey());
         resp.setStartTime(DateUtils.of(instance.getStartTime()));
         resp.setEndTime(DateUtils.of(instance.getEndTime()));

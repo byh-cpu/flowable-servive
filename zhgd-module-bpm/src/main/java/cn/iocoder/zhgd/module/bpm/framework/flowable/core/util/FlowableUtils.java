@@ -144,6 +144,26 @@ public class FlowableUtils {
     }
 
     /**
+     * 获得流程实例的标题
+     *
+     * @param processInstance 流程实例
+     * @return 标题
+     */
+    public static String getProcessInstanceTitle(HistoricProcessInstance processInstance) {
+        return MapUtil.getStr(processInstance.getProcessVariables(), BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_TITLE);
+    }
+
+    /**
+     * 获得流程实例的标题
+     *
+     * @param processInstance 流程实例
+     * @return 标题
+     */
+    public static String getProcessInstanceTitle(ProcessInstance processInstance) {
+        return MapUtil.getStr(processInstance.getProcessVariables(), BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_TITLE);
+    }
+
+    /**
      * 获得流程实例的表单
      *
      * @param processInstance 流程实例
@@ -175,6 +195,7 @@ public class FlowableUtils {
      */
     public static Map<String, Object> filterProcessInstanceFormVariable(Map<String, Object> processVariables) {
         processVariables.remove(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS);
+        processVariables.remove(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_TITLE);
         return processVariables;
     }
 

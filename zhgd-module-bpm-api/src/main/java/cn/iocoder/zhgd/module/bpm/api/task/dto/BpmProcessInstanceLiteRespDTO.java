@@ -14,6 +14,10 @@ public class BpmProcessInstanceLiteRespDTO implements Serializable {
 
     private String id;
     private String name;
+    /**
+     * 流程标题（拼接后的标题）
+     */
+    private String title;
     private String businessKey;
 
     private LocalDateTime startTime;
