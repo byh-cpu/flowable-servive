@@ -4,6 +4,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.enums.TerminalEnum;
 import cn.iocoder.zhgd.framework.common.enums.UserTypeEnum;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
+import cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.zhgd.framework.web.config.WebProperties;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -88,7 +89,8 @@ public class WebFrameworkUtils {
         if (request == null) {
             return null;
         }
-        return (Long) request.getAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID);
+        Long userId = (Long) request.getAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID);
+        return userId != null ? userId : SecurityFrameworkUtils.getLoginUserId();
     }
 
     /**
@@ -124,7 +126,8 @@ public class WebFrameworkUtils {
 
     public static Long getLoginUserId() {
         HttpServletRequest request = getRequest();
-        return getLoginUserId(request);
+        Long userId = getLoginUserId(request);
+        return userId != null ? userId : SecurityFrameworkUtils.getLoginUserId();
     }
 
     public static Integer getTerminal() {
