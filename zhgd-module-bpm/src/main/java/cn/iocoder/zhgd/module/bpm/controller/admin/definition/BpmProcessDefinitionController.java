@@ -88,7 +88,7 @@ public class BpmProcessDefinitionController {
         // 1.2 移除不可见的流程定义
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(list, ProcessDefinition::getId));
-        String userId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String userId = getLoginUserId();
         list.removeIf(processDefinition -> {
             BpmProcessDefinitionInfoDO processDefinitionInfo = processDefinitionMap.get(processDefinition.getId());
             return processDefinitionInfo == null // 不存在

@@ -58,7 +58,7 @@ public class BpmProcessInstanceCopyController {
     @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
     public CommonResult<PageResult<BpmProcessInstanceCopyRespVO>> getProcessInstanceCopyPage(
             @Valid BpmProcessInstanceCopyPageReqVO pageReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         PageResult<BpmProcessInstanceCopyDO> pageResult = processInstanceCopyService.getProcessInstanceCopyPage(
                 loginUserId, pageReqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {

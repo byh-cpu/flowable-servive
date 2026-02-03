@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
 
-import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils.getLoginUserIdLong;
 import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils.skipPermissionCheck;
 
 /**
@@ -39,7 +39,7 @@ public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
         }
 
         // 权限校验
-        Long userId = getLoginUserId();
+        Long userId = getLoginUserIdLong();
         if (userId == null) {
             return false;
         }
@@ -62,7 +62,7 @@ public class SecurityFrameworkServiceImpl implements SecurityFrameworkService {
         }
 
         // 权限校验
-        Long userId = getLoginUserId();
+        Long userId = getLoginUserIdLong();
         if (userId == null) {
             return false;
         }

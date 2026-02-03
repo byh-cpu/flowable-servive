@@ -90,16 +90,27 @@ public class SecurityFrameworkUtils {
      * @return 用户编号
      */
     @Nullable
-    public static Long getLoginUserId() {
+    public static String getLoginUserId() {
         AuthUserHolder authUserHolder = getAuthUserHolder();
         if (authUserHolder != null) {
             AuthUser authUser = authUserHolder.getCurrentUser();
-            if (authUser != null && NumberUtil.isLong(authUser.getId())) {
-                return Long.valueOf(authUser.getId());
+            if (authUser != null && StrUtil.isNotBlank(authUser.getId())) {
+                return authUser.getId();
             }
         }
         LoginUser loginUser = getLoginUser();
-        return loginUser != null ? loginUser.getId() : null;
+        return loginUser != null ? String.valueOf(loginUser.getId()) : null;
+    }
+
+    /**
+     * 获得当前用户的编号（Long）
+     *
+     * @return 用户编号
+     */
+    @Nullable
+    public static Long getLoginUserIdLong() {
+        String userId = getLoginUserId();
+        return NumberUtil.isLong(userId) ? Long.valueOf(userId) : null;
     }
 
     /**
@@ -147,7 +158,7 @@ public class SecurityFrameworkUtils {
         // 额外设置到 request 中，用于 ApiAccessLogFilter 可以获取到用户编号；
         // 原因是，Spring Security 的 Filter 在 ApiAccessLogFilter 后面，在它记录访问日志时，线上上下文已经没有用户编号等信息
         if (request != null) {
-            WebFrameworkUtils.setLoginUserId(request, loginUser.getId());
+            WebFrameworkUtils.setLoginUserId(request, String.valueOf(loginUser.getId()));
             WebFrameworkUtils.setLoginUserType(request, loginUser.getUserType());
         }
     }

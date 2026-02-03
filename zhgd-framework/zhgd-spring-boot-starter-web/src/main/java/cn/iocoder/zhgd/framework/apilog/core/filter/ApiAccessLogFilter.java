@@ -6,6 +6,7 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.zhgd.framework.apilog.core.enums.OperateTypeEnum;
@@ -110,7 +111,8 @@ public class ApiAccessLogFilter extends ApiRequestFilter {
         }
 
         // 处理用户信息
-        accessLog.setUserId(WebFrameworkUtils.getLoginUserId(request))
+        accessLog.setUserId(NumberUtil.isLong(WebFrameworkUtils.getLoginUserId(request))
+                ? Long.valueOf(WebFrameworkUtils.getLoginUserId(request)) : null)
                 .setUserType(WebFrameworkUtils.getLoginUserType(request));
         // 设置访问结果
         CommonResult<?> result = WebFrameworkUtils.getCommonResult(request);

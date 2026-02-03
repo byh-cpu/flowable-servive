@@ -810,11 +810,14 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      */
     private void approveDelegateTask(BpmTaskApproveReqVO reqVO, Task task) {
         // 1. 添加审批意见
-        AdminUserRespDTO currentUser = adminUserApi.getUser(WebFrameworkUtils.getLoginUserId());
+        String loginUserId = WebFrameworkUtils.getLoginUserId();
+        AdminUserRespDTO currentUser = adminUserApi.getUser(NumberUtil.parseLong(loginUserId, null));
         AdminUserRespDTO ownerUser = adminUserApi.getUser(NumberUtil.parseLong(task.getOwner(), null)); // 发起委托的用户
         Assert.notNull(ownerUser, "委派任务找不到原审批人，需要检查数据");
         taskService.addComment(reqVO.getId(), task.getProcessInstanceId(), BpmCommentTypeEnum.DELEGATE_END.getType(),
-                BpmCommentTypeEnum.DELEGATE_END.formatComment(currentUser.getNickname(), ownerUser.getNickname(), reqVO.getReason()));
+                BpmCommentTypeEnum.DELEGATE_END.formatComment(
+                        currentUser != null ? currentUser.getNickname() : (loginUserId != null ? loginUserId : "unknown"),
+                        ownerUser.getNickname(), reqVO.getReason()));
 
         // 2.1 调用 resolveTask 完成任务。
         // 底层调用 TaskHelper.changeTaskAssignee(task, task.getOwner())：将 owner 设置为 assignee

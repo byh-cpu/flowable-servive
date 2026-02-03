@@ -169,8 +169,9 @@ public class BpmTaskCandidateInvoker {
         }
         Set<Long> numericIds = new HashSet<>();
         assigneeUserIds.forEach(id -> {
-            if (NumberUtil.isLong(id)) {
-                numericIds.add(Long.valueOf(id));
+            Long numericId = NumberUtil.parseLong(id, null);
+            if (numericId != null) {
+                numericIds.add(numericId);
             }
         });
         if (CollUtil.isEmpty(numericIds)) {
@@ -178,10 +179,11 @@ public class BpmTaskCandidateInvoker {
         }
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(numericIds);
         assigneeUserIds.removeIf(id -> {
-            if (!NumberUtil.isLong(id)) {
+            Long numericId = NumberUtil.parseLong(id, null);
+            if (numericId == null) {
                 return false;
             }
-            AdminUserRespDTO user = userMap.get(Long.valueOf(id));
+            AdminUserRespDTO user = userMap.get(numericId);
             return user == null || CommonStatusEnum.isDisable(user.getStatus());
         });
     }

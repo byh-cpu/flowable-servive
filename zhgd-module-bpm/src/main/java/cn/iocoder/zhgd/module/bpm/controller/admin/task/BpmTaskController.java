@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -54,6 +55,7 @@ import static cn.iocoder.zhgd.framework.web.core.util.WebFrameworkUtils.getLogin
 @RestController
 @RequestMapping("/bpm/task")
 @Validated
+@Slf4j
 public class BpmTaskController {
 
     @Resource
@@ -159,7 +161,11 @@ public class BpmTaskController {
     @Operation(summary = "获取 Todo 待办任务分页")
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskTodoPage(@Valid BpmTaskPageReqVO pageVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
+        log.info("[BpmTask] todo-page loginUserId={}", loginUserId);
+        if (loginUserId == null) {
+            return success(PageResult.empty());
+        }
         PageResult<Task> pageResult = taskService.getTaskTodoPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
@@ -179,7 +185,7 @@ public class BpmTaskController {
     @Operation(summary = "获取 Done 已办任务分页")
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskDonePage(@Valid BpmTaskPageReqVO pageVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskDonePage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
@@ -199,7 +205,7 @@ public class BpmTaskController {
     @Operation(summary = "获取全部任务的分页", description = "用于【流程任务】菜单")
     @PreAuthorize("@ss.hasPermission('bpm:task:mananger-query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskManagerPage(@Valid BpmTaskPageReqVO pageVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
@@ -248,7 +254,7 @@ public class BpmTaskController {
     @Operation(summary = "通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> approveTask(@Valid @RequestBody BpmTaskApproveReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.approveTask(loginUserId, reqVO);
         return success(true);
     }
@@ -257,7 +263,7 @@ public class BpmTaskController {
     @Operation(summary = "不通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> rejectTask(@Valid @RequestBody BpmTaskRejectReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.rejectTask(loginUserId, reqVO);
         return success(true);
     }
@@ -276,7 +282,7 @@ public class BpmTaskController {
     @Operation(summary = "退回任务", description = "用于【流程详情】的【退回】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> returnTask(@Valid @RequestBody BpmTaskReturnReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.returnTask(loginUserId, reqVO);
         return success(true);
     }
@@ -285,7 +291,7 @@ public class BpmTaskController {
     @Operation(summary = "委派任务", description = "用于【流程详情】的【委派】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> delegateTask(@Valid @RequestBody BpmTaskDelegateReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.delegateTask(loginUserId, reqVO);
         return success(true);
     }
@@ -294,7 +300,7 @@ public class BpmTaskController {
     @Operation(summary = "转派任务", description = "用于【流程详情】的【转派】按钮")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> transferTask(@Valid @RequestBody BpmTaskTransferReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.transferTask(loginUserId, reqVO);
         return success(true);
     }
@@ -303,7 +309,7 @@ public class BpmTaskController {
     @Operation(summary = "加签", description = "before 前加签，after 后加签")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> createSignTask(@Valid @RequestBody BpmTaskSignCreateReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.createSignTask(loginUserId, reqVO);
         return success(true);
     }
@@ -312,7 +318,7 @@ public class BpmTaskController {
     @Operation(summary = "减签")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> deleteSignTask(@Valid @RequestBody BpmTaskSignDeleteReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.deleteSignTask(loginUserId, reqVO);
         return success(true);
     }
@@ -321,7 +327,7 @@ public class BpmTaskController {
     @Operation(summary = "抄送任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> copyTask(@Valid @RequestBody BpmTaskCopyReqVO reqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.copyTask(loginUserId, reqVO);
         return success(true);
     }
@@ -330,7 +336,7 @@ public class BpmTaskController {
     @Operation(summary = "撤回任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> withdrawTask(@RequestParam("taskId") String taskId) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         taskService.withdrawTask(loginUserId, taskId);
         return success(true);
     }

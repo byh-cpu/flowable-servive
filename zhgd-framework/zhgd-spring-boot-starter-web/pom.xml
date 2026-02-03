@@ -60,6 +60,13 @@
             <scope>provided</scope> <!-- 设置为 provided，只有工具类需要使用到 -->
         </dependency>
 
+        <!-- 兼容 pinming cookie 依赖（javax.servlet） -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
         <!-- 当前登录用户（pinming cookie） -->
         <dependency>
             <groupId>cn.pinming</groupId>

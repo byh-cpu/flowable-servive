@@ -39,7 +39,7 @@ public class BpmOALeaveController {
     @PreAuthorize("@ss.hasPermission('bpm:oa-leave:create')")
     @Operation(summary = "创建请求申请")
     public CommonResult<Long> createLeave(@Valid @RequestBody BpmOALeaveCreateReqVO createReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         return success(leaveService.createLeave(loginUserId, createReqVO));
     }
 
@@ -56,7 +56,7 @@ public class BpmOALeaveController {
     @PreAuthorize("@ss.hasPermission('bpm:oa-leave:query')")
     @Operation(summary = "获得请假申请分页")
     public CommonResult<PageResult<BpmOALeaveRespVO>> getLeavePage(@Valid BpmOALeavePageReqVO pageVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         PageResult<BpmOALeaveDO> pageResult = leaveService.getLeavePage(loginUserId, pageVO);
         return success(BeanUtils.toBean(pageResult, BpmOALeaveRespVO.class));
     }

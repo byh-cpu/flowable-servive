@@ -330,8 +330,11 @@ public interface BpmProcessInstanceConvert {
             approveTask.setName(item.getName());
             approveTask.setId(item.getId());
             approveTask.setSignPicUrl((String) taskLocalVariables.get(BpmnVariableConstants.TASK_SIGN_PIC_URL));
+            Long assigneeId = NumberUtil.parseLong(item.getAssignee(), null);
+            AdminUserRespDTO assigneeUser = assigneeId != null ? userMap.get(assigneeId) : null;
+            String assigneeName = assigneeUser != null ? assigneeUser.getNickname() : item.getAssignee();
             approveTask.setDescription(StrUtil.format("{} / {} / {} / {} / {}",
-                    userMap.get(Long.valueOf(item.getAssignee())).getNickname(),
+                    assigneeName,
                     item.getName(),
                     DateUtil.formatDateTime(item.getEndTime()),
                     BpmTaskStatusEnum.valueOf((Integer) taskLocalVariables.get(BpmnVariableConstants.TASK_VARIABLE_STATUS)).getName(),

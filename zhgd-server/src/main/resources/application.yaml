@@ -89,6 +89,10 @@ spring:
     listener:
       missing-topics-fatal: false
 
+# Pinming cookie domain (login user parsing)
+cookie:
+  domain: zz-test05.pinming.org
+
 # Redisson 配置（和 Redis 保持一致）
 redisson:
   singleServerConfig:

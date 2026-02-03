@@ -1,6 +1,8 @@
 package cn.iocoder.zhgd.module.bpm.framework.flowable.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.zhgd.framework.common.core.KeyValue;
@@ -25,10 +27,7 @@ import org.flowable.engine.impl.util.CommandContextUtil;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.TaskInfo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -72,8 +71,12 @@ public class FlowableUtils {
                 || Objects.equals(tenantIdStr, ProcessEngineConfiguration.NO_TENANT_ID)) {
             runnable.run();
         } else {
-            Long tenantId = Long.valueOf(tenantIdStr);
-            TenantUtils.execute(tenantId, runnable);
+            Long tenantId = NumberUtil.parseLong(tenantIdStr, null);
+            if (tenantId == null) {
+                runnable.run();
+            } else {
+                TenantUtils.execute(tenantId, runnable);
+            }
         }
     }
 
@@ -83,8 +86,8 @@ public class FlowableUtils {
                 || Objects.equals(tenantIdStr, ProcessEngineConfiguration.NO_TENANT_ID)) {
             return callable.call();
         } else {
-            Long tenantId = Long.valueOf(tenantIdStr);
-            return TenantUtils.execute(tenantId, callable);
+            Long tenantId = NumberUtil.parseLong(tenantIdStr, null);
+            return tenantId == null ? callable.call() : TenantUtils.execute(tenantId, callable);
         }
     }
 
@@ -242,6 +245,13 @@ public class FlowableUtils {
                 || !BpmModelFormTypeEnum.NORMAL.getType().equals(processDefinitionInfo.getFormType())) {
             return null;
         }
+        if (CollUtil.isEmpty(processDefinitionInfo.getFormFields())) {
+            return null;
+        }
+        if (processVariables == null) {
+            processVariables = Collections.emptyMap();
+        }
+        Map<String, Object> finalProcessVariables = processVariables;
 
         // 解析表单配置
         Map<String, BpmFormFieldVO> formFieldsMap = new HashMap<>();
@@ -259,7 +269,7 @@ public class FlowableUtils {
                 BpmFormFieldVO formField = formFieldsMap.get(item);
                 if (formField != null) {
                     return new KeyValue<String, String>(formField.getTitle(),
-                            processVariables.getOrDefault(item, "").toString());
+                            finalProcessVariables.getOrDefault(item, "").toString());
                 }
                 return null;
             });
@@ -269,7 +279,7 @@ public class FlowableUtils {
         return formFieldsMap.entrySet().stream()
                 .limit(3)
                 .map(entry -> new KeyValue<>(entry.getValue().getTitle(),
-                        MapUtil.getStr(processVariables, entry.getValue().getField(), "")))
+                        MapUtil.getStr(finalProcessVariables, entry.getValue().getField(), "")))
                 .collect(Collectors.toList());
     }
 

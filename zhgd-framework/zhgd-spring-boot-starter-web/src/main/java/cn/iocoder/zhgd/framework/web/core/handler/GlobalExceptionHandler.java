@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.common.biz.infra.logger.ApiErrorLogCommonApi;
 import cn.iocoder.zhgd.framework.common.biz.infra.logger.dto.ApiErrorLogCreateReqDTO;
@@ -354,7 +355,8 @@ public class GlobalExceptionHandler {
 
     private void buildExceptionLog(ApiErrorLogCreateReqDTO errorLog, HttpServletRequest request, Throwable e) {
         // 处理用户信息
-        errorLog.setUserId(WebFrameworkUtils.getLoginUserId(request));
+        String loginUserId = WebFrameworkUtils.getLoginUserId(request);
+        errorLog.setUserId(NumberUtil.isLong(loginUserId) ? Long.valueOf(loginUserId) : null);
         errorLog.setUserType(WebFrameworkUtils.getLoginUserType(request));
         // 设置异常字段
         errorLog.setExceptionName(e.getClass().getName());

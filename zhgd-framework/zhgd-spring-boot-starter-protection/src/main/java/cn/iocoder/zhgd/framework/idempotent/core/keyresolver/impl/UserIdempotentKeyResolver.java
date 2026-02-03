@@ -20,7 +20,7 @@ public class UserIdempotentKeyResolver implements IdempotentKeyResolver {
     public String resolver(JoinPoint joinPoint, Idempotent idempotent) {
         String methodName = joinPoint.getSignature().toString();
         String argsStr = StrUtils.joinMethodArgs(joinPoint);
-        Long userId = WebFrameworkUtils.getLoginUserId();
+        String userId = WebFrameworkUtils.getLoginUserId();
         Integer userType = WebFrameworkUtils.getLoginUserType();
         return SecureUtil.md5(methodName + argsStr + userId + userType);
     }

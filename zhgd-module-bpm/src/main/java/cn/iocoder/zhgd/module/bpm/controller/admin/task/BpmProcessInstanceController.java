@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static cn.iocoder.zhgd.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
@@ -68,7 +69,7 @@ public class BpmProcessInstanceController {
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
     public CommonResult<PageResult<BpmProcessInstanceRespVO>> getProcessInstanceMyPage(
             @Valid BpmProcessInstancePageReqVO pageReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         PageResult<HistoricProcessInstance> pageResult = processInstanceService.getProcessInstancePage(
                 loginUserId, pageReqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
@@ -131,7 +132,7 @@ public class BpmProcessInstanceController {
     @Operation(summary = "新建流程实例")
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
     public CommonResult<String> createProcessInstance(@Valid @RequestBody BpmProcessInstanceCreateReqVO createReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         return success(processInstanceService.createProcessInstance(loginUserId, createReqVO));
     }
 
@@ -164,7 +165,7 @@ public class BpmProcessInstanceController {
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:cancel')")
     public CommonResult<Boolean> cancelProcessInstanceByStartUser(
             @Valid @RequestBody BpmProcessInstanceCancelReqVO cancelReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         processInstanceService.cancelProcessInstanceByStartUser(loginUserId, cancelReqVO);
         return success(true);
     }
@@ -174,7 +175,7 @@ public class BpmProcessInstanceController {
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:cancel-by-admin')")
     public CommonResult<Boolean> cancelProcessInstanceByManager(
             @Valid @RequestBody BpmProcessInstanceCancelReqVO cancelReqVO) {
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         processInstanceService.cancelProcessInstanceByAdmin(loginUserId, cancelReqVO);
         return success(true);
     }
@@ -188,7 +189,7 @@ public class BpmProcessInstanceController {
         if (StrUtil.isNotEmpty(reqVO.getProcessVariablesStr())) {
             reqVO.setProcessVariables(JsonUtils.parseObject(reqVO.getProcessVariablesStr(), Map.class));
         }
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         return success(processInstanceService.getApprovalDetail(loginUserId, reqVO));
     }
 
@@ -200,7 +201,7 @@ public class BpmProcessInstanceController {
         if (StrUtil.isNotEmpty(reqVO.getProcessVariablesStr())) {
             reqVO.setProcessVariables(JsonUtils.parseObject(reqVO.getProcessVariablesStr(), Map.class));
         }
-        String loginUserId = getLoginUserId() != null ? String.valueOf(getLoginUserId()) : null;
+        String loginUserId = getLoginUserId();
         return success(processInstanceService.getNextApprovalNodes(loginUserId, reqVO));
     }
 
@@ -222,15 +223,22 @@ public class BpmProcessInstanceController {
         if (historicProcessInstance == null) {
             throw exception(PROCESS_INSTANCE_NOT_EXISTS);
         }
-        AdminUserRespDTO startUser = adminUserApi.getUser(Long.valueOf(historicProcessInstance.getStartUserId()));
-        DeptRespDTO dept = deptApi.getDept(startUser.getDeptId());
+        String startUserId = historicProcessInstance.getStartUserId();
+        AdminUserRespDTO startUser = adminUserApi.getUser(NumberUtil.parseLong(startUserId, null));
+        DeptRespDTO dept = null;
+        if (startUser != null && startUser.getDeptId() != null) {
+            dept = deptApi.getDept(startUser.getDeptId());
+        }
         List<HistoricTaskInstance> tasks = taskService.getFinishedTaskListByProcessInstanceIdWithoutCancel(processInstanceId);
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(tasks, item -> Long.valueOf(item.getAssignee())));
+                convertSetByFlatMap(tasks, item -> Stream.of(NumberUtil.parseLong(item.getAssignee(), null))
+                        .filter(Objects::nonNull)));
         return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePrintData(historicProcessInstance,
                 processDefinitionService.getProcessDefinitionInfo(historicProcessInstance.getProcessDefinitionId()),
                 tasks, userMap,
-                new UserSimpleBaseVO().setNickname(startUser.getNickname()).setDeptName(dept.getName())));
+                new UserSimpleBaseVO()
+                        .setNickname(startUser != null ? startUser.getNickname() : startUserId)
+                        .setDeptName(dept != null ? dept.getName() : null)));
     }
 
 }

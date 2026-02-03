@@ -1,6 +1,7 @@
 package cn.iocoder.zhgd.framework.web.core.util;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.zhgd.framework.common.enums.TerminalEnum;
 import cn.iocoder.zhgd.framework.common.enums.UserTypeEnum;
@@ -66,7 +67,7 @@ public class WebFrameworkUtils {
         return NumberUtil.isNumber(tenantId)? Long.valueOf(tenantId) : null;
     }
 
-    public static void setLoginUserId(ServletRequest request, Long userId) {
+    public static void setLoginUserId(ServletRequest request, String userId) {
         request.setAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID, userId);
     }
 
@@ -87,23 +88,26 @@ public class WebFrameworkUtils {
      * @param request 请求
      * @return 用户编号
      */
-    public static Long getLoginUserId(HttpServletRequest request) {
+    public static String getLoginUserId(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
-        Long userId = (Long) request.getAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID);
-        if (userId != null) {
-            return userId;
+        Object userId = request.getAttribute(REQUEST_ATTRIBUTE_LOGIN_USER_ID);
+        if (userId instanceof String && StrUtil.isNotBlank((String) userId)) {
+            return (String) userId;
+        }
+        if (userId instanceof Long) {
+            return String.valueOf(userId);
         }
         AuthUserHolder authUserHolder = getAuthUserHolder();
         if (authUserHolder == null) {
             return null;
         }
         AuthUser authUser = authUserHolder.getCurrentUser();
-        if (authUser == null || !NumberUtil.isLong(authUser.getId())) {
+        if (authUser == null || !StrUtil.isNotBlank(authUser.getId())) {
             return null;
         }
-        return Long.valueOf(authUser.getId());
+        return authUser.getId();
     }
 
     /**
@@ -137,7 +141,7 @@ public class WebFrameworkUtils {
         return getLoginUserType(request);
     }
 
-    public static Long getLoginUserId() {
+    public static String getLoginUserId() {
         HttpServletRequest request = getRequest();
         return getLoginUserId(request);
     }

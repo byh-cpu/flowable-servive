@@ -85,7 +85,10 @@ public abstract class AbstractBpmTaskCandidateDeptLeaderStrategy implements BpmT
         if (!NumberUtil.isLong(startUserId)) {
             return null;
         }
-        AdminUserRespDTO startUser = adminUserApi.getUser(Long.valueOf(startUserId));
+        AdminUserRespDTO startUser = adminUserApi.getUser(NumberUtil.parseLong(startUserId, null));
+        if (startUser == null) {
+            return null;
+        }
         if (startUser.getDeptId() == null) { // 找不到部门
             return null;
         }

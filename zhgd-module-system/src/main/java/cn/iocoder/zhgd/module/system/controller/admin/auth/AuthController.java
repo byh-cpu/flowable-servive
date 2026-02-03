@@ -39,7 +39,7 @@ import java.util.Set;
 
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.convertSet;
-import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.zhgd.framework.security.core.util.SecurityFrameworkUtils.getLoginUserIdLong;
 
 @Tag(name = "管理后台 - 认证")
 @RestController
@@ -95,13 +95,13 @@ public class AuthController {
     @Operation(summary = "获取登录用户的权限信息")
     public CommonResult<AuthPermissionInfoRespVO> getPermissionInfo() {
         // 1.1 获得用户信息
-        AdminUserDO user = userService.getUser(getLoginUserId());
+        AdminUserDO user = userService.getUser(getLoginUserIdLong());
         if (user == null) {
             return success(null);
         }
 
         // 1.2 获得角色列表
-        Set<Long> roleIds = permissionService.getUserRoleIdListByUserId(getLoginUserId());
+        Set<Long> roleIds = permissionService.getUserRoleIdListByUserId(getLoginUserIdLong());
         if (CollUtil.isEmpty(roleIds)) {
             return success(AuthConvert.INSTANCE.convert(user, Collections.emptyList(), Collections.emptyList()));
         }
