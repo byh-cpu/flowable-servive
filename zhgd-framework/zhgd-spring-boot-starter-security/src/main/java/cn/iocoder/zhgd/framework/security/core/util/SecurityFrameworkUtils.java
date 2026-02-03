@@ -3,8 +3,12 @@ package cn.iocoder.zhgd.framework.security.core.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.zhgd.framework.security.core.LoginUser;
 import cn.iocoder.zhgd.framework.web.core.util.WebFrameworkUtils;
+import cn.pinming.core.cookie.AuthUser;
+import cn.pinming.core.cookie.support.AuthUserHolder;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -87,6 +91,13 @@ public class SecurityFrameworkUtils {
      */
     @Nullable
     public static Long getLoginUserId() {
+        AuthUserHolder authUserHolder = getAuthUserHolder();
+        if (authUserHolder != null) {
+            AuthUser authUser = authUserHolder.getCurrentUser();
+            if (authUser != null && NumberUtil.isLong(authUser.getId())) {
+                return Long.valueOf(authUser.getId());
+            }
+        }
         LoginUser loginUser = getLoginUser();
         return loginUser != null ? loginUser.getId() : null;
     }
@@ -100,6 +111,15 @@ public class SecurityFrameworkUtils {
     public static String getLoginUserNickname() {
         LoginUser loginUser = getLoginUser();
         return loginUser != null ? MapUtil.getStr(loginUser.getInfo(), LoginUser.INFO_KEY_NICKNAME) : null;
+    }
+
+    @Nullable
+    private static AuthUserHolder getAuthUserHolder() {
+        try {
+            return SpringUtil.getBean(AuthUserHolder.class);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     /**
