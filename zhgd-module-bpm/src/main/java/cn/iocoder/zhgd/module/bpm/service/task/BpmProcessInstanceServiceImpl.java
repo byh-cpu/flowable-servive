@@ -10,6 +10,7 @@ import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.zhgd.framework.common.util.date.DateUtils;
 import cn.iocoder.zhgd.framework.common.util.json.JsonUtils;
+import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.framework.common.util.object.ObjectUtils;
 import cn.iocoder.zhgd.framework.common.util.object.PageUtils;
 import cn.iocoder.zhgd.framework.datapermission.core.annotation.DataPermission;
@@ -295,21 +296,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             return nextActivityNodes;
         }
 
-        // 4. 拼接基础信息
-        Set<Long> userIds = convertSetByFlatMap(nextActivityNodes, ActivityNode::getCandidateUserIds,
-                candidateUserIds -> candidateUserIds.stream()
-                        .map(candidateUserId -> NumberUtil.parseLong(candidateUserId, null))
-                        .filter(Objects::nonNull));
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
-        Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
-        nextActivityNodes.forEach(node -> node.setCandidateUsers(convertList(node.getCandidateUserIds(), userId -> {
-            Long userIdLong = NumberUtil.parseLong(userId, null);
-            AdminUserRespDTO user = userIdLong != null ? userMap.get(userIdLong) : null;
-            if (user != null) {
-                return BpmProcessInstanceConvert.INSTANCE.buildUser(userIdLong, userMap, deptMap);
-            }
-            return null;
-        })));
+        // 4. 只保留 candidateUserIds，不查用户详情，candidateUsers 置空
+        nextActivityNodes.forEach(node -> node.setCandidateUsers(Collections.emptyList()));
         return nextActivityNodes;
     }
 

@@ -175,14 +175,14 @@ public interface BpmProcessInstanceConvert {
         return respVO;
     }
 
+    /**
+     * 只保留字符串 ID，不解析、不查用户详情，返回 null。
+     * assignee / owner / startUserId 等字段已携带原始 ID，供前端使用。
+     */
     default UserSimpleBaseVO buildUser(String userIdStr,
                                        Map<Long, AdminUserRespDTO> userMap,
                                        Map<Long, DeptRespDTO> deptMap) {
-        if (StrUtil.isEmpty(userIdStr)) {
-            return null;
-        }
-        Long userId = NumberUtil.parseLong(userIdStr, null);
-        return buildUser(userId, userMap, deptMap);
+        return null;
     }
 
     default UserSimpleBaseVO buildUser(Long userId,

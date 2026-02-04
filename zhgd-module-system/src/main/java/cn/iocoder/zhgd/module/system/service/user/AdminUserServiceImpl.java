@@ -278,6 +278,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public List<AdminUserDO> getUserListByUsernames(Collection<String> usernames) {
+        return userMapper.selectListByUsernames(usernames);
+    }
+
+    @Override
     public AdminUserDO getUserByMobile(String mobile) {
         return userMapper.selectByMobile(mobile);
     }

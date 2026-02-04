@@ -17,6 +17,10 @@ public interface AdminUserMapper extends BaseMapperX<AdminUserDO> {
         return selectOne(AdminUserDO::getUsername, username);
     }
 
+    default List<AdminUserDO> selectListByUsernames(Collection<String> usernames) {
+        return selectList(new LambdaQueryWrapperX<AdminUserDO>().inIfPresent(AdminUserDO::getUsername, usernames));
+    }
+
     default AdminUserDO selectByEmail(String email) {
         return selectOne(AdminUserDO::getEmail, email);
     }

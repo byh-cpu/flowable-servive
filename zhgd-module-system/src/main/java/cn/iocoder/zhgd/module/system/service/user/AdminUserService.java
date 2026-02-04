@@ -111,6 +111,14 @@ public interface AdminUserService {
     AdminUserDO getUserByUsername(String username);
 
     /**
+     * 获得用户列表（按用户名）
+     *
+     * @param usernames 用户名数组
+     * @return 用户列表
+     */
+    List<AdminUserDO> getUserListByUsernames(Collection<String> usernames);
+
+    /**
      * 通过手机号获取用户
      *
      * @param mobile 手机号

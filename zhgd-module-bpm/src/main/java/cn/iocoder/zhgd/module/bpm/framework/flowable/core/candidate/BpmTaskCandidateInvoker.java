@@ -162,30 +162,12 @@ public class BpmTaskCandidateInvoker {
         return userIds;
     }
 
+    /**
+     * 不再根据用户状态过滤候选人。用户 ID 均为字符串，不查用户详情，保留原样。
+     */
     @VisibleForTesting
     void removeDisableUsers(Set<String> assigneeUserIds) {
-        if (CollUtil.isEmpty(assigneeUserIds)) {
-            return;
-        }
-        Set<Long> numericIds = new HashSet<>();
-        assigneeUserIds.forEach(id -> {
-            Long numericId = NumberUtil.parseLong(id, null);
-            if (numericId != null) {
-                numericIds.add(numericId);
-            }
-        });
-        if (CollUtil.isEmpty(numericIds)) {
-            return;
-        }
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(numericIds);
-        assigneeUserIds.removeIf(id -> {
-            Long numericId = NumberUtil.parseLong(id, null);
-            if (numericId == null) {
-                return false;
-            }
-            AdminUserRespDTO user = userMap.get(numericId);
-            return user == null || CommonStatusEnum.isDisable(user.getStatus());
-        });
+        // 只保留字符串 ID，不解析、不查用户详情
     }
 
     /**

@@ -24,6 +24,14 @@ public interface AdminUserApi {
     AdminUserRespDTO getUser(Long id);
 
     /**
+     * 通过用户名查询用户
+     *
+     * @param username 用户名
+     * @return 用户对象信息
+     */
+    AdminUserRespDTO getUserByUsername(String username);
+
+    /**
      * 通过用户 ID 查询用户下属
      *
      * @param id 用户编号
@@ -38,6 +46,14 @@ public interface AdminUserApi {
      * @return 用户对象信息
      */
     List<AdminUserRespDTO> getUserList(Collection<Long> ids);
+
+    /**
+     * 通过用户名查询用户们
+     *
+     * @param usernames 用户名数组
+     * @return 用户对象信息
+     */
+    List<AdminUserRespDTO> getUserListByUsernames(Collection<String> usernames);
 
     /**
      * 获得指定部门的用户数组
@@ -64,6 +80,17 @@ public interface AdminUserApi {
     default Map<Long, AdminUserRespDTO> getUserMap(Collection<Long> ids) {
         List<AdminUserRespDTO> users = getUserList(ids);
         return CollectionUtils.convertMap(users, AdminUserRespDTO::getId);
+    }
+
+    /**
+     * 获得用户 Map（按用户名）
+     *
+     * @param usernames 用户名数组
+     * @return 用户 Map
+     */
+    default Map<String, AdminUserRespDTO> getUserMapByUsernames(Collection<String> usernames) {
+        List<AdminUserRespDTO> users = getUserListByUsernames(usernames);
+        return CollectionUtils.convertMap(users, AdminUserRespDTO::getUsername);
     }
 
     /**
