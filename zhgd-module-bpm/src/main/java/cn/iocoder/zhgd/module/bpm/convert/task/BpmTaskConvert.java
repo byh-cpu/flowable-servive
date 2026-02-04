@@ -52,6 +52,7 @@ public interface BpmTaskConvert {
             }
             taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskRespVO.ProcessInstance.class));
             taskVO.getProcessInstance().setTitle(FlowableUtils.getProcessInstanceTitle(processInstance));
+            taskVO.getProcessInstance().setStartUserId(processInstance.getStartUserId());
             AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(processInstance.getStartUserId(), null));
             taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
             taskVO.getProcessInstance().setCreateTime(DateUtils.of(processInstance.getStartTime()));
@@ -81,6 +82,7 @@ public interface BpmTaskConvert {
                 AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(processInstance.getStartUserId(), null));
                 taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskRespVO.ProcessInstance.class));
                 taskVO.getProcessInstance().setTitle(FlowableUtils.getProcessInstanceTitle(processInstance));
+                taskVO.getProcessInstance().setStartUserId(processInstance.getStartUserId());
                 taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
                 // 摘要
                 taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(processDefinitionInfoMap.get(processInstance.getProcessDefinitionId()),

@@ -2,7 +2,6 @@ package cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task;
 
 import cn.iocoder.zhgd.framework.common.core.KeyValue;
 import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -38,7 +37,6 @@ public class BpmTaskRespVO {
     private String reason;
 
     @Schema(description = "任务负责人编号", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "2048")
-    @JsonIgnore // 不返回，只是方便后续读取，赋值给 ownerUser
     private String owner;
     /**
      * 负责人的用户信息
@@ -46,7 +44,6 @@ public class BpmTaskRespVO {
     private UserSimpleBaseVO ownerUser;
 
     @Schema(description = "任务分配人编号", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "2048")
-    @JsonIgnore // 不返回，只是方便后续读取，赋值给 assigneeUser
     private String assignee;
     /**
      * 审核的用户信息
@@ -112,8 +109,11 @@ public class BpmTaskRespVO {
         @Schema(description = "流程摘要", example = "[]")
         private List<KeyValue<String, String>> summary; // 只有流程表单，才有摘要！
 
+        @Schema(description = "发起人用户编号", example = "8a74d4128f94b666018fa4162897000b")
+        private String startUserId;
+
         /**
-         * 发起人的用户信息
+         * 发起人的用户信息（仅当请求带 companyId 时通过 Dubbo 补全）
          */
         private UserSimpleBaseVO startUser;
 

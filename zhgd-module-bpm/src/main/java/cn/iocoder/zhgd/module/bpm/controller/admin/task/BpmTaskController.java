@@ -1,9 +1,11 @@
 package cn.iocoder.zhgd.module.bpm.controller.admin.task;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.zhgd.framework.common.pojo.CommonResult;
 import cn.iocoder.zhgd.framework.common.pojo.PageResult;
 import cn.hutool.core.util.NumberUtil;
+import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
 import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.*;
 import cn.iocoder.zhgd.module.bpm.convert.task.BpmTaskConvert;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmFormDO;
@@ -77,6 +79,8 @@ public class BpmTaskController {
     private AuthorityRoleService authorityRoleService;
     @DubboReference
     private EmployeeService employeeService;
+    @DubboReference
+    private cn.pinming.v2.company.api.service.EmployeeService v2EmployeeService;
     @DubboReference
     private DepartmentRoleService DepartmentRoleService;
 
@@ -178,7 +182,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
-        return success(BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
+        fillAssigneeAndOwnerUser(result, pageVO.getCompanyId());
+        return success(result);
     }
 
     @GetMapping("done-page")
@@ -198,7 +204,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        return success(BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap);
+        fillAssigneeAndOwnerUser(result, pageVO.getCompanyId());
+        return success(result);
     }
 
     @GetMapping("manager-page")
@@ -356,6 +364,96 @@ public class BpmTaskController {
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         return success(BpmTaskConvert.INSTANCE.buildTaskListByParentTaskId(taskList, userMap, deptMap));
+    }
+
+    /**
+     * 仅当请求传入 companyId 时，根据 assignee/owner/startUserId 的 memberId 调用 Dubbo 补全 assigneeUser、ownerUser、processInstance.startUser；
+     * 未传 companyId 则不调用，上述用户信息保持 null。
+     */
+    private void fillAssigneeAndOwnerUser(PageResult<BpmTaskRespVO> pageResult, Long requestCompanyId) {
+        if (pageResult == null || CollUtil.isEmpty(pageResult.getList()) || requestCompanyId == null) {
+            return;
+        }
+        int companyId = requestCompanyId.intValue();
+        Set<String> memberIds = new HashSet<>();
+        for (BpmTaskRespVO task : pageResult.getList()) {
+            collectAssigneeOwnerIds(task, memberIds);
+            // 发起人 ID 一并收集，用于 Dubbo 补全 processInstance.startUser
+            if (task.getProcessInstance() != null && StrUtil.isNotBlank(task.getProcessInstance().getStartUserId())) {
+                memberIds.add(task.getProcessInstance().getStartUserId());
+            }
+        }
+        Map<String, cn.pinming.v2.company.api.dto.EmployeeDto> employeeMap = new HashMap<>();
+        for (String memberId : memberIds) {
+            if (StrUtil.isBlank(memberId)) {
+                continue;
+            }
+            try {
+                cn.pinming.v2.company.api.dto.EmployeeDto emp = v2EmployeeService.findEmployee(companyId, memberId);
+                if (emp != null) {
+                    employeeMap.put(memberId, emp);
+                }
+            } catch (Exception e) {
+                log.warn("[fillAssigneeAndOwnerUser] findEmployee failed, companyId={}, memberId={}", companyId, memberId, e);
+            }
+        }
+        for (BpmTaskRespVO task : pageResult.getList()) {
+            fillTaskAssigneeOwner(task, employeeMap);
+            // 补全发起人用户信息
+            if (task.getProcessInstance() != null && StrUtil.isNotBlank(task.getProcessInstance().getStartUserId())) {
+                cn.pinming.v2.company.api.dto.EmployeeDto startEmp = employeeMap.get(task.getProcessInstance().getStartUserId());
+                task.getProcessInstance().setStartUser(employeeToUserSimple(startEmp));
+            }
+        }
+    }
+
+    private void collectAssigneeOwnerIds(BpmTaskRespVO task, Set<String> memberIds) {
+        if (task == null) {
+            return;
+        }
+        if (StrUtil.isNotBlank(task.getAssignee())) {
+            memberIds.add(task.getAssignee());
+        }
+        if (StrUtil.isNotBlank(task.getOwner())) {
+            memberIds.add(task.getOwner());
+        }
+        if (CollUtil.isNotEmpty(task.getChildren())) {
+            for (BpmTaskRespVO child : task.getChildren()) {
+                collectAssigneeOwnerIds(child, memberIds);
+            }
+        }
+    }
+
+    private void fillTaskAssigneeOwner(BpmTaskRespVO task, Map<String, cn.pinming.v2.company.api.dto.EmployeeDto> employeeMap) {
+        if (task == null) {
+            return;
+        }
+        if (StrUtil.isNotBlank(task.getAssignee())) {
+            cn.pinming.v2.company.api.dto.EmployeeDto emp = employeeMap.get(task.getAssignee());
+            task.setAssigneeUser(employeeToUserSimple(emp));
+        }
+        if (StrUtil.isNotBlank(task.getOwner())) {
+            cn.pinming.v2.company.api.dto.EmployeeDto emp = employeeMap.get(task.getOwner());
+            task.setOwnerUser(employeeToUserSimple(emp));
+        }
+        if (CollUtil.isNotEmpty(task.getChildren())) {
+            for (BpmTaskRespVO child : task.getChildren()) {
+                fillTaskAssigneeOwner(child, employeeMap);
+            }
+        }
+    }
+
+    private static UserSimpleBaseVO employeeToUserSimple(cn.pinming.v2.company.api.dto.EmployeeDto emp) {
+        if (emp == null) {
+            return null;
+        }
+        UserSimpleBaseVO vo = new UserSimpleBaseVO();
+        vo.setId(emp.getId() != null ? Long.valueOf(emp.getId()) : null);
+        vo.setNickname(emp.getMemberName());
+        vo.setAvatar(null);
+        vo.setDeptId(null);
+        vo.setDeptName(null);
+        return vo;
     }
 
 }
