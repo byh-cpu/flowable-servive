@@ -49,6 +49,8 @@ import cn.pinming.v2.passport.api.service.MemberService;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static cn.iocoder.zhgd.framework.common.exception.enums.GlobalErrorCodeConstants.UNAUTHORIZED;
+import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.error;
 import static cn.iocoder.zhgd.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.zhgd.framework.common.util.collection.CollectionUtils.*;
 import static cn.iocoder.zhgd.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
@@ -168,7 +170,7 @@ public class BpmTaskController {
         String loginUserId = getLoginUserId();
         log.info("[BpmTask] todo-page loginUserId={}", loginUserId);
         if (loginUserId == null) {
-            return success(PageResult.empty());
+            return error(UNAUTHORIZED.getCode(), "当前登录用户凭证已失效");
         }
         PageResult<Task> pageResult = taskService.getTaskTodoPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
@@ -192,6 +194,9 @@ public class BpmTaskController {
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskDonePage(@Valid BpmTaskPageReqVO pageVO) {
         String loginUserId = getLoginUserId();
+        if (loginUserId == null) {
+            return error(UNAUTHORIZED.getCode(), "当前登录用户凭证已失效");
+        }
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskDonePage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
@@ -214,6 +219,9 @@ public class BpmTaskController {
     @PreAuthorize("@ss.hasPermission('bpm:task:mananger-query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskManagerPage(@Valid BpmTaskPageReqVO pageVO) {
         String loginUserId = getLoginUserId();
+        if (loginUserId == null) {
+            return error(UNAUTHORIZED.getCode(), "当前登录用户凭证已失效");
+        }
         PageResult<HistoricTaskInstance> pageResult = taskService.getTaskPage(loginUserId, pageVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
             return success(PageResult.empty());
