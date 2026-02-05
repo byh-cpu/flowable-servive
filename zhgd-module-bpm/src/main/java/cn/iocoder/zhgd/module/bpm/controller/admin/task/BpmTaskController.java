@@ -10,6 +10,7 @@ import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.*;
 import cn.iocoder.zhgd.module.bpm.convert.task.BpmTaskConvert;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmFormDO;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
+import cn.iocoder.zhgd.module.bpm.service.definition.BpmCategoryService;
 import cn.iocoder.zhgd.module.bpm.service.definition.BpmFormService;
 import cn.iocoder.zhgd.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.iocoder.zhgd.module.bpm.service.task.BpmProcessInstanceService;
@@ -70,6 +71,8 @@ public class BpmTaskController {
     private BpmFormService formService;
     @Resource
     private BpmProcessDefinitionService processDefinitionService;
+    @Resource
+    private BpmCategoryService categoryService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -184,7 +187,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
-        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
+        Map<String, cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmCategoryDO> categoryMap = categoryService.getCategoryMap(
+                convertSet(filterList(processDefinitionInfoMap.values(), info -> info != null && StrUtil.isNotBlank(info.getCategory())), BpmProcessDefinitionInfoDO::getCategory));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap, categoryMap);
         fillAssigneeAndOwnerUser(result, pageVO.getCompanyId());
         return success(result);
     }
@@ -209,7 +214,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> NumberUtil.parseLong(instance.getStartUserId(), null)));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap);
+        Map<String, cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmCategoryDO> categoryMap = categoryService.getCategoryMap(
+                convertSet(filterList(processDefinitionInfoMap.values(), info -> info != null && StrUtil.isNotBlank(info.getCategory())), BpmProcessDefinitionInfoDO::getCategory));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap, categoryMap);
         fillAssigneeAndOwnerUser(result, pageVO.getCompanyId());
         return success(result);
     }
@@ -239,7 +246,9 @@ public class BpmTaskController {
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        return success(BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, deptMap, processDefinitionInfoMap));
+        Map<String, cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmCategoryDO> categoryMap = categoryService.getCategoryMap(
+                convertSet(filterList(processDefinitionInfoMap.values(), info -> info != null && StrUtil.isNotBlank(info.getCategory())), BpmProcessDefinitionInfoDO::getCategory));
+        return success(BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, deptMap, processDefinitionInfoMap, categoryMap));
     }
 
     @GetMapping("/list-by-process-instance-id")

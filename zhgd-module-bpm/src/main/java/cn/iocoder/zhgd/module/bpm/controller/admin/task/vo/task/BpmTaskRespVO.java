@@ -106,6 +106,11 @@ public class BpmTaskRespVO {
         @Schema(description = "流程定义的编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "2048")
         private String processDefinitionId;
 
+        @Schema(description = "流程分类编码", example = "documentApproval")
+        private String category;
+        @Schema(description = "流程分类名称", example = "文档审批")
+        private String categoryName;
+
         @Schema(description = "流程摘要", example = "[]")
         private List<KeyValue<String, String>> summary; // 只有流程表单，才有摘要！
 

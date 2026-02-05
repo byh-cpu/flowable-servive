@@ -9,6 +9,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.iocoder.zhgd.framework.common.util.object.BeanUtils;
 import cn.iocoder.zhgd.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
 import cn.iocoder.zhgd.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
+import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmCategoryDO;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmFormDO;
 import cn.iocoder.zhgd.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
 import cn.iocoder.zhgd.module.bpm.enums.task.BpmTaskStatusEnum;
@@ -44,21 +45,27 @@ public interface BpmTaskConvert {
     default PageResult<BpmTaskRespVO> buildTodoTaskPage(PageResult<Task> pageResult,
                                                         Map<String, ProcessInstance> processInstanceMap,
                                                         Map<Long, AdminUserRespDTO> userMap,
-                                                        Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap) {
+                                                        Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap,
+                                                        Map<String, BpmCategoryDO> categoryMap) {
         return BeanUtils.toBean(pageResult, BpmTaskRespVO.class, taskVO -> {
             ProcessInstance processInstance = processInstanceMap.get(taskVO.getProcessInstanceId());
             if (processInstance == null) {
                 return;
             }
+            BpmProcessDefinitionInfoDO definitionInfo = processDefinitionInfoMap.get(processInstance.getProcessDefinitionId());
             taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskRespVO.ProcessInstance.class));
             taskVO.getProcessInstance().setTitle(FlowableUtils.getProcessInstanceTitle(processInstance));
             taskVO.getProcessInstance().setStartUserId(processInstance.getStartUserId());
             AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(processInstance.getStartUserId(), null));
             taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
             taskVO.getProcessInstance().setCreateTime(DateUtils.of(processInstance.getStartTime()));
+            // 流程分类
+            if (definitionInfo != null && definitionInfo.getCategory() != null) {
+                taskVO.getProcessInstance().setCategory(definitionInfo.getCategory());
+                findAndThen(categoryMap, definitionInfo.getCategory(), c -> taskVO.getProcessInstance().setCategoryName(c.getName()));
+            }
             // 摘要
-            taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(processDefinitionInfoMap.get(processInstance.getProcessDefinitionId()),
-                    processInstance.getProcessVariables()));
+            taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(definitionInfo, processInstance.getProcessVariables()));
         });
     }
 
@@ -66,7 +73,8 @@ public interface BpmTaskConvert {
                                                     Map<String, HistoricProcessInstance> processInstanceMap,
                                                     Map<Long, AdminUserRespDTO> userMap,
                                                     Map<Long, DeptRespDTO> deptMap,
-                                                    Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap) {
+                                                    Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap,
+                                                    Map<String, BpmCategoryDO> categoryMap) {
         List<BpmTaskRespVO> taskVOList = CollectionUtils.convertList(pageResult.getList(), task -> {
             BpmTaskRespVO taskVO = BeanUtils.toBean(task, BpmTaskRespVO.class);
             taskVO.setStatus(FlowableUtils.getTaskStatus(task)).setReason(FlowableUtils.getTaskReason(task));
@@ -79,14 +87,19 @@ public interface BpmTaskConvert {
             // 流程实例
             HistoricProcessInstance processInstance = processInstanceMap.get(taskVO.getProcessInstanceId());
             if (processInstance != null) {
+                BpmProcessDefinitionInfoDO definitionInfo = processDefinitionInfoMap.get(processInstance.getProcessDefinitionId());
                 AdminUserRespDTO startUser = userMap.get(NumberUtil.parseLong(processInstance.getStartUserId(), null));
                 taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskRespVO.ProcessInstance.class));
                 taskVO.getProcessInstance().setTitle(FlowableUtils.getProcessInstanceTitle(processInstance));
                 taskVO.getProcessInstance().setStartUserId(processInstance.getStartUserId());
                 taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
+                // 流程分类
+                if (definitionInfo != null && definitionInfo.getCategory() != null) {
+                    taskVO.getProcessInstance().setCategory(definitionInfo.getCategory());
+                    findAndThen(categoryMap, definitionInfo.getCategory(), c -> taskVO.getProcessInstance().setCategoryName(c.getName()));
+                }
                 // 摘要
-                taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(processDefinitionInfoMap.get(processInstance.getProcessDefinitionId()),
-                        processInstance.getProcessVariables()));
+                taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(definitionInfo, processInstance.getProcessVariables()));
             }
             return taskVO;
         });
