@@ -47,10 +47,16 @@ public interface BpmTaskConvert {
                                                         Map<Long, AdminUserRespDTO> userMap,
                                                         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap,
                                                         Map<String, BpmCategoryDO> categoryMap) {
-        return BeanUtils.toBean(pageResult, BpmTaskRespVO.class, taskVO -> {
+        List<BpmTaskRespVO> list = convertList(pageResult.getList(), task -> {
+            BpmTaskRespVO taskVO = BeanUtils.toBean(task, BpmTaskRespVO.class);
+            Integer status = FlowableUtils.getTaskStatus(task);
+            if (status == null) {
+                status = BpmTaskStatusEnum.RUNNING.getStatus(); // 待办任务未写入 TASK_STATUS 时默认「审批中」
+            }
+            taskVO.setStatus(status).setReason(FlowableUtils.getTaskReason(task));
             ProcessInstance processInstance = processInstanceMap.get(taskVO.getProcessInstanceId());
             if (processInstance == null) {
-                return;
+                return taskVO;
             }
             BpmProcessDefinitionInfoDO definitionInfo = processDefinitionInfoMap.get(processInstance.getProcessDefinitionId());
             taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskRespVO.ProcessInstance.class));
@@ -66,7 +72,9 @@ public interface BpmTaskConvert {
             }
             // 摘要
             taskVO.getProcessInstance().setSummary(FlowableUtils.getSummary(definitionInfo, processInstance.getProcessVariables()));
+            return taskVO;
         });
+        return new PageResult<>(list, pageResult.getTotal());
     }
 
     default PageResult<BpmTaskRespVO> buildTaskPage(PageResult<HistoricTaskInstance> pageResult,
